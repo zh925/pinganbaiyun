@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/paper"
+    android:fitsSystemWindows="true">
+
+    <include
+        android:id="@+id/appbar"
+        layout="@layout/appbar" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="18dp"
+            android:paddingTop="8dp">
+
+            <include
+                android:id="@+id/permNfc"
+                layout="@layout/item_permission" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/line" />
+
+            <include
+                android:id="@+id/permBt"
+                layout="@layout/item_permission" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="18dp"
+                android:padding="12dp"
+                android:background="@drawable/bg_alert_ok">
+
+                <ImageView
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:src="@drawable/ic_check"
+                    android:contentDescription="@null"
+                    app:tint="@color/alert_ok_fg" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="10dp"
+                    android:text="@string/perm_no_location"
+                    android:textColor="@color/alert_ok_fg"
+                    android:textSize="12.5sp"
+                    android:lineSpacingMultiplier="1.4" />
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingHorizontal="18dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="18dp">
+
+        <Button
+            android:id="@+id/btnGrantAll"
+            style="@style/PinganButton"
+            android:background="@drawable/bg_button_brand"
+            android:text="@string/perm_grant_all"
+            tools:ignore="ButtonStyle"
+            xmlns:tools="http://schemas.android.com/tools" />
+
+        <Button
+            android:id="@+id/btnLater"
+            style="@style/PinganButton.Ghost"
+            android:layout_marginTop="9dp"
+            android:text="@string/perm_later"
+            tools:ignore="ButtonStyle"
+            xmlns:tools="http://schemas.android.com/tools" />
+    </LinearLayout>
+</LinearLayout>

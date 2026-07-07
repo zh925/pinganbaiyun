@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="screen_pad">18dp</dimen>
+    <dimen name="card_radius">18dp</dimen>
+    <dimen name="btn_radius">16dp</dimen>
+    <dimen name="btn_height">50dp</dimen>
+    <dimen name="btn_height_sm">44dp</dimen>
+    <dimen name="input_radius">12dp</dimen>
+    <dimen name="icon_box">42dp</dimen>
+    <dimen name="status_ic">104dp</dimen>
+</resources>

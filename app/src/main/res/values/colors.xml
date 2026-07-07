@@ -1,8 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="brand_primary">#1F6FEB</color>
+    <!-- 品牌主色（取自原型 brand-500 / 700 / 900） -->
+    <color name="brand_primary">#1F6FD6</color>
+    <color name="brand_700">#12457A</color>
+    <color name="brand_900">#0A2540</color>
     <color name="brand_on_primary">#FFFFFF</color>
-    <color name="ic_launcher_background">#1F6FEB</color>
+
+    <!-- 链路语义色 -->
+    <color name="nfc">#00C2B8</color>
+    <color name="nfc_dark">#04322F</color>
+    <color name="bt">#2F6BFF</color>
+    <color name="ok">#1FB573</color>
+    <color name="warn">#F5A623</color>
+    <color name="err">#E5484D</color>
+    <color name="door">#8A63E8</color>
+
+    <!-- 中性色 -->
+    <color name="paper">#F6F8FB</color>
+    <color name="card">#FFFFFF</color>
+    <color name="line">#E4E9F0</color>
+    <color name="muted">#6B7787</color>
+    <color name="text_main">#101827</color>
+
+    <!-- 提示条底色 -->
+    <color name="alert_info_bg">#E8F2FD</color>
+    <color name="alert_info_fg">#12457A</color>
+    <color name="alert_warn_bg">#FFF6E5</color>
+    <color name="alert_warn_fg">#8A5A00</color>
+    <color name="alert_ok_bg">#E6F7EF</color>
+    <color name="alert_ok_fg">#0F6B45</color>
+    <color name="alert_door_bg">#F1ECFD</color>
+    <color name="alert_door_fg">#5B3FB0</color>
+
+    <!-- 图标浅底 -->
+    <color name="sky_100">#E8F2FD</color>
+    <color name="chip_bg">#EEF3F9</color>
+
+    <color name="ic_launcher_background">#1F6FD6</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 </resources>

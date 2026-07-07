@@ -59,5 +59,31 @@
             </intent-filter>
         </activity>
 
+        <!-- 运行流程：读卡成功 → BLE 握手开门（原型 N/C 段） -->
+        <activity
+            android:name=".ui.unlock.UnlockActivity"
+            android:exported="false" />
+
+        <!-- 蓝牙信息维护 · 新增/编辑（原型 M-02） -->
+        <activity
+            android:name=".ui.devices.edit.DeviceEditActivity"
+            android:exported="false" />
+
+        <!-- NFC 写卡（原型 W 段），运行时前台调度拿 Tag -->
+        <activity
+            android:name=".ui.write.WriteCardActivity"
+            android:exported="false"
+            android:launchMode="singleTop" />
+
+        <!-- 手动扫描门禁（原型 B 段） -->
+        <activity
+            android:name=".ui.scan.ScanActivity"
+            android:exported="false" />
+
+        <!-- 权限申请引导（原型 P-01） -->
+        <activity
+            android:name=".ui.permission.PermissionActivity"
+            android:exported="false" />
+
     </application>
 </manifest>

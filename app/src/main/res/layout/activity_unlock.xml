@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/paper"
+    android:fitsSystemWindows="true">
+
+    <include
+        android:id="@+id/appbar"
+        layout="@layout/appbar" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="440dp"
+            android:orientation="vertical"
+            android:gravity="center_horizontal"
+            android:paddingHorizontal="18dp"
+            android:paddingVertical="12dp">
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:minHeight="150dp">
+
+                <com.google.android.material.progressindicator.CircularProgressIndicator
+                    android:id="@+id/unlockProgress"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:indeterminate="true"
+                    app:indicatorSize="66dp"
+                    app:trackThickness="5dp"
+                    app:indicatorColor="@color/brand_primary" />
+
+                <FrameLayout
+                    android:id="@+id/unlockIconCircle"
+                    android:layout_width="104dp"
+                    android:layout_height="104dp"
+                    android:layout_gravity="center"
+                    android:background="@drawable/bg_circle_ok"
+                    android:visibility="gone"
+                    tools:visibility="visible">
+
+                    <ImageView
+                        android:id="@+id/unlockIcon"
+                        android:layout_width="52dp"
+                        android:layout_height="52dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_check"
+                        android:contentDescription="@null"
+                        app:tint="@color/white" />
+                </FrameLayout>
+            </FrameLayout>
+
+            <TextView
+                android:id="@+id/unlockLead"
+                style="@style/Text.Lead"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:gravity="center"
+                tools:text="正在建立安全连接…" />
+
+            <TextView
+                android:id="@+id/unlockDesc"
+                style="@style/Text.Desc"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:gravity="center"
+                tools:text="DES 握手与密钥 / 时间同步" />
+
+            <TextView
+                android:id="@+id/unlockBadge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:paddingHorizontal="14dp"
+                android:paddingVertical="6dp"
+                android:background="@drawable/bg_pill_ok"
+                android:textColor="@color/ok"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:visibility="gone"
+                tools:visibility="visible"
+                tools:text="回执 00 · 开门成功" />
+
+            <LinearLayout
+                android:id="@+id/unlockCard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/bg_card"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="4dp"
+                android:visibility="gone"
+                tools:visibility="visible">
+
+                <LinearLayout
+                    android:id="@+id/unlockRows"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:divider="@drawable/divider_dashed"
+                    android:showDividers="middle" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/unlockAlert"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="16dp"
+                android:padding="12dp"
+                android:background="@drawable/bg_alert_info"
+                android:visibility="gone"
+                tools:visibility="visible">
+
+                <ImageView
+                    android:id="@+id/unlockAlertIcon"
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:src="@drawable/ic_info"
+                    android:contentDescription="@null"
+                    app:tint="@color/alert_info_fg" />
+
+                <TextView
+                    android:id="@+id/unlockAlertText"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="10dp"
+                    android:textColor="@color/alert_info_fg"
+                    android:textSize="12.5sp"
+                    android:lineSpacingMultiplier="1.4"
+                    tools:text="正在按 MAC 直连并准备开门" />
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+
+    <LinearLayout
+        android:id="@+id/unlockDock"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingHorizontal="18dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="18dp">
+
+        <Button
+            android:id="@+id/unlockBtnPrimary"
+            style="@style/PinganButton"
+            android:background="@drawable/bg_button_door"
+            android:visibility="gone"
+            tools:visibility="visible"
+            tools:text="立即连接开门"
+            tools:ignore="ButtonStyle" />
+
+        <Button
+            android:id="@+id/unlockBtnSecondary"
+            style="@style/PinganButton.Ghost"
+            android:layout_marginTop="9dp"
+            android:visibility="gone"
+            tools:visibility="visible"
+            tools:text="选择其他门禁"
+            tools:ignore="ButtonStyle" />
+    </LinearLayout>
+</LinearLayout>

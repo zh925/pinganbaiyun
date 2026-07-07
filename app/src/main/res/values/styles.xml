@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 文本 -->
+    <style name="Text.Lead" parent="">
+        <item name="android:textColor">@color/brand_900</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:lineSpacingMultiplier">1.15</item>
+    </style>
+
+    <style name="Text.Desc" parent="">
+        <item name="android:textColor">@color/muted</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:lineSpacingMultiplier">1.5</item>
+    </style>
+
+    <style name="Text.AppbarTitle" parent="">
+        <item name="android:textColor">@color/brand_900</item>
+        <item name="android:textSize">16.5sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="Text.AppbarSub" parent="">
+        <item name="android:textColor">@color/muted</item>
+        <item name="android:textSize">11sp</item>
+    </style>
+
+    <!-- 按钮：渐变主按钮基类（用普通 Button + gradient drawable 背景） -->
+    <style name="PinganButton" parent="">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">@dimen/btn_height</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:gravity">center</item>
+        <item name="android:stateListAnimator">@null</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+        <item name="android:letterSpacing">0.02</item>
+    </style>
+
+    <style name="PinganButton.Ghost">
+        <item name="android:layout_height">@dimen/btn_height_sm</item>
+        <item name="android:textColor">@color/brand_700</item>
+        <item name="android:textSize">13.5sp</item>
+        <item name="android:background">@drawable/bg_button_ghost</item>
+    </style>
+
+    <!-- 卡片信息 KV 行文本 -->
+    <style name="Text.KvKey" parent="">
+        <item name="android:textColor">@color/muted</item>
+        <item name="android:textSize">13sp</item>
+    </style>
+    <style name="Text.KvValue" parent="">
+        <item name="android:textColor">@color/brand_900</item>
+        <item name="android:textSize">12.5sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">monospace</item>
+        <item name="android:gravity">end</item>
+    </style>
+</resources>

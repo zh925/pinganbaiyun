@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/paper"
+    android:fitsSystemWindows="true">
+
+    <include
+        android:id="@+id/appbar"
+        layout="@layout/appbar" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <!-- W-01 选择设备 -->
+        <LinearLayout
+            android:id="@+id/writeSelectSection"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/writeDeviceList"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:clipToPadding="false"
+                android:paddingHorizontal="18dp"
+                android:paddingTop="8dp"
+                tools:listitem="@layout/item_write_device" />
+        </LinearLayout>
+
+        <!-- W-02/03/04 状态 -->
+        <ScrollView
+            android:id="@+id/writeStatusSection"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true"
+            android:visibility="gone"
+            tools:visibility="gone">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="420dp"
+                android:orientation="vertical"
+                android:gravity="center_horizontal"
+                android:paddingHorizontal="18dp"
+                android:paddingVertical="12dp">
+
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:minHeight="150dp">
+
+                    <FrameLayout
+                        android:id="@+id/writeOrb"
+                        android:layout_width="190dp"
+                        android:layout_height="190dp"
+                        android:layout_gravity="center">
+
+                        <View
+                            android:layout_width="190dp"
+                            android:layout_height="190dp"
+                            android:layout_gravity="center"
+                            android:background="@drawable/bg_ring_door" />
+
+                        <View
+                            android:layout_width="150dp"
+                            android:layout_height="150dp"
+                            android:layout_gravity="center"
+                            android:alpha="0.6"
+                            android:background="@drawable/bg_ring_door" />
+
+                        <FrameLayout
+                            android:layout_width="112dp"
+                            android:layout_height="112dp"
+                            android:layout_gravity="center"
+                            android:background="@drawable/bg_circle_door">
+
+                            <ImageView
+                                android:layout_width="54dp"
+                                android:layout_height="54dp"
+                                android:layout_gravity="center"
+                                android:src="@drawable/ic_nfc"
+                                android:contentDescription="@null"
+                                app:tint="@color/white" />
+                        </FrameLayout>
+                    </FrameLayout>
+
+                    <FrameLayout
+                        android:id="@+id/writeIconCircle"
+                        android:layout_width="104dp"
+                        android:layout_height="104dp"
+                        android:layout_gravity="center"
+                        android:background="@drawable/bg_circle_ok"
+                        android:visibility="gone"
+                        tools:visibility="visible">
+
+                        <ImageView
+                            android:id="@+id/writeIcon"
+                            android:layout_width="52dp"
+                            android:layout_height="52dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_check"
+                            android:contentDescription="@null"
+                            app:tint="@color/white" />
+                    </FrameLayout>
+                </FrameLayout>
+
+                <TextView
+                    android:id="@+id/writeLead"
+                    style="@style/Text.Lead"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:gravity="center"
+                    tools:text="正在写入…" />
+
+                <TextView
+                    android:id="@+id/writeDesc"
+                    style="@style/Text.Desc"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:gravity="center"
+                    tools:text="请勿移开卡片" />
+
+                <TextView
+                    android:id="@+id/writeBadge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:paddingHorizontal="14dp"
+                    android:paddingVertical="6dp"
+                    android:background="@drawable/bg_pill_ok"
+                    android:textColor="@color/ok"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:visibility="gone"
+                    tools:visibility="visible"
+                    tools:text="1栋大堂门 · 可碰卡开门" />
+
+                <LinearLayout
+                    android:id="@+id/writeCard"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginTop="16dp"
+                    android:background="@drawable/bg_card"
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="4dp"
+                    android:visibility="gone"
+                    tools:visibility="visible">
+
+                    <LinearLayout
+                        android:id="@+id/writeRows"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:divider="@drawable/divider_dashed"
+                        android:showDividers="middle" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/writeAlert"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginTop="16dp"
+                    android:padding="12dp"
+                    android:background="@drawable/bg_alert_warn"
+                    android:visibility="gone"
+                    tools:visibility="visible">
+
+                    <ImageView
+                        android:id="@+id/writeAlertIcon"
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:src="@drawable/ic_warning"
+                        android:contentDescription="@null"
+                        app:tint="@color/alert_warn_fg" />
+
+                    <TextView
+                        android:id="@+id/writeAlertText"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="10dp"
+                        android:textColor="@color/alert_warn_fg"
+                        android:textSize="12.5sp"
+                        android:lineSpacingMultiplier="1.4"
+                        tools:text="写入过程约 1-2 秒，中途移开可能导致写入不完整" />
+                </LinearLayout>
+            </LinearLayout>
+        </ScrollView>
+    </FrameLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingHorizontal="18dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="18dp">
+
+        <LinearLayout
+            android:id="@+id/writeSelectHint"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="10dp"
+            android:padding="12dp"
+            android:background="@drawable/bg_alert_door">
+
+            <ImageView
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:src="@drawable/ic_info"
+                android:contentDescription="@null"
+                app:tint="@color/alert_door_fg" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="10dp"
+                android:text="@string/write_pick_hint"
+                android:textColor="@color/alert_door_fg"
+                android:textSize="12.5sp"
+                android:lineSpacingMultiplier="1.4" />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/writeBtnPrimary"
+            style="@style/PinganButton"
+            android:background="@drawable/bg_button_door"
+            android:text="@string/write_next"
+            tools:ignore="ButtonStyle" />
+
+        <Button
+            android:id="@+id/writeBtnSecondary"
+            style="@style/PinganButton.Ghost"
+            android:layout_marginTop="9dp"
+            android:visibility="gone"
+            tools:visibility="visible"
+            tools:text="更换卡片"
+            tools:ignore="ButtonStyle" />
+    </LinearLayout>
+</LinearLayout>

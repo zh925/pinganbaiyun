@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:layout_marginBottom="10dp"
+    android:background="@drawable/bg_card"
+    android:padding="13dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:baselineAligned="false">
+
+        <FrameLayout
+            android:layout_width="38dp"
+            android:layout_height="38dp"
+            android:background="@drawable/bg_iconbox_door">
+
+            <ImageView
+                android:layout_width="19dp"
+                android:layout_height="19dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_door"
+                android:contentDescription="@null"
+                app:tint="@color/white" />
+        </FrameLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="11dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/deviceName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/brand_900"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                tools:text="1栋大堂门" />
+
+            <TextView
+                android:id="@+id/deviceMeta"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:fontFamily="monospace"
+                android:textColor="@color/muted"
+                android:textSize="10sp"
+                tools:text="BY-Lock-08 · C4:2F:90:AB:07:11" />
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/deviceDelete"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:padding="7dp"
+            android:src="@drawable/ic_close"
+            android:contentDescription="@string/device_delete"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            app:tint="@color/muted" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="11dp"
+        android:background="@color/line" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="11dp"
+        android:baselineAligned="false">
+
+        <Button
+            android:id="@+id/deviceWrite"
+            android:layout_width="0dp"
+            android:layout_height="34dp"
+            android:layout_weight="1"
+            android:layout_marginEnd="4dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:text="@string/device_write_card"
+            android:textColor="@color/nfc_dark"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:background="@drawable/bg_button_nfc"
+            android:stateListAnimator="@null"
+            tools:ignore="ButtonStyle" />
+
+        <Button
+            android:id="@+id/deviceEdit"
+            android:layout_width="0dp"
+            android:layout_height="34dp"
+            android:layout_weight="1"
+            android:layout_marginStart="4dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:text="@string/device_edit"
+            android:textColor="@color/brand_700"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:background="@drawable/bg_button_ghost"
+            android:stateListAnimator="@null"
+            tools:ignore="ButtonStyle" />
+    </LinearLayout>
+</LinearLayout>

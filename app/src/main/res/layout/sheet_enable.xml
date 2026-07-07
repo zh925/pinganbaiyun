@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@color/card"
+    android:paddingHorizontal="20dp"
+    android:paddingTop="12dp"
+    android:paddingBottom="20dp">
+
+    <View
+        android:layout_width="38dp"
+        android:layout_height="4dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="16dp"
+        android:background="@color/line" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="14dp"
+        android:baselineAligned="false">
+
+        <FrameLayout
+            android:id="@+id/sheetIconBox"
+            android:layout_width="52dp"
+            android:layout_height="52dp"
+            android:background="@drawable/bg_circle_warn">
+
+            <ImageView
+                android:id="@+id/sheetIcon"
+                android:layout_width="26dp"
+                android:layout_height="26dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_warning"
+                android:contentDescription="@null"
+                app:tint="@color/white" />
+        </FrameLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="12dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/sheetTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/brand_900"
+                android:textSize="17sp"
+                android:textStyle="bold"
+                tools:text="NFC 未开启" />
+
+            <TextView
+                android:id="@+id/sheetDesc"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:textColor="@color/muted"
+                android:textSize="13sp"
+                android:lineSpacingMultiplier="1.4"
+                tools:text="请在系统设置中打开 NFC 后重试碰卡" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/sheetBtnPrimary"
+        style="@style/PinganButton"
+        android:background="@drawable/bg_button_brand"
+        tools:text="前往系统设置"
+        tools:ignore="ButtonStyle" />
+
+    <Button
+        android:id="@+id/sheetBtnSecondary"
+        style="@style/PinganButton.Ghost"
+        android:layout_marginTop="9dp"
+        tools:text="我已开启，重试"
+        tools:ignore="ButtonStyle" />
+</LinearLayout>

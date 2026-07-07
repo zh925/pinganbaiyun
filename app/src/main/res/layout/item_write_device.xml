@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:layout_marginBottom="10dp"
+    android:background="@drawable/bg_card"
+    android:padding="13dp"
+    android:baselineAligned="false">
+
+    <FrameLayout
+        android:id="@+id/writeItemIconBox"
+        android:layout_width="38dp"
+        android:layout_height="38dp"
+        android:background="@drawable/bg_iconbox_door">
+
+        <ImageView
+            android:id="@+id/writeItemIcon"
+            android:layout_width="19dp"
+            android:layout_height="19dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_door"
+            android:contentDescription="@null"
+            app:tint="@color/white" />
+    </FrameLayout>
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:layout_marginStart="11dp"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/writeItemName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/brand_900"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                tools:text="1栋大堂门" />
+
+            <TextView
+                android:id="@+id/writeItemTag"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:paddingHorizontal="7dp"
+                android:paddingVertical="2dp"
+                android:background="@drawable/bg_pill_door"
+                android:text="@string/write_selected"
+                android:textColor="@color/door"
+                android:textSize="10sp"
+                android:fontFamily="monospace"
+                android:visibility="gone"
+                tools:visibility="visible" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/writeItemMeta"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:fontFamily="monospace"
+            android:textColor="@color/muted"
+            android:textSize="10sp"
+            tools:text="BY-Lock-08 · C4:2F:90:AB:07:11" />
+    </LinearLayout>
+</LinearLayout>

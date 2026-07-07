@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:paddingHorizontal="18dp"
+    android:paddingTop="10dp"
+    android:paddingBottom="12dp">
+
+    <ImageView
+        android:id="@+id/appbarBack"
+        android:layout_width="34dp"
+        android:layout_height="34dp"
+        android:padding="7dp"
+        android:layout_marginEnd="10dp"
+        android:background="@drawable/bg_circle_soft"
+        android:src="@drawable/ic_arrow_back"
+        android:contentDescription="@string/action_back"
+        app:tint="@color/brand_700"
+        xmlns:app="http://schemas.android.com/apk/res-auto" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/appbarTitle"
+            style="@style/Text.AppbarTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="连接门禁"
+            xmlns:tools="http://schemas.android.com/tools" />
+
+        <TextView
+            android:id="@+id/appbarSub"
+            style="@style/Text.AppbarSub"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:visibility="gone"
+            tools:text="1栋大堂门"
+            tools:visibility="visible"
+            xmlns:tools="http://schemas.android.com/tools" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/appbarBrand"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/brand_tag"
+        android:textColor="@color/brand_primary"
+        android:textSize="10sp"
+        android:fontFamily="monospace"
+        android:letterSpacing="0.1" />
+</LinearLayout>
