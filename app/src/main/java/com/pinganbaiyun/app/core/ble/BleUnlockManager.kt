@@ -107,7 +107,7 @@ class BleUnlockManager(
 
     // ---------------- 扫描 ----------------
 
-    private val scanCallback = object : ScanCallback() {
+    private val scanCallback: ScanCallback = object : ScanCallback() {
         override fun onScanResult(callbackType: Int, result: ScanResult) {
             val target = config ?: return
             val device = result.device
@@ -135,7 +135,7 @@ class BleUnlockManager(
 
     // ---------------- GATT 回调 ----------------
 
-    private val gattCallback = object : BluetoothGattCallback() {
+    private val gattCallback: BluetoothGattCallback = object : BluetoothGattCallback() {
         override fun onConnectionStateChange(gatt: BluetoothGatt, status: Int, newState: Int) {
             if (newState == BluetoothGatt.STATE_CONNECTED) {
                 handler.removeCallbacks(connectTimeoutRunnable)
