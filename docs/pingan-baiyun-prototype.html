@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>平安白云 · NFC 碰一碰开门 · 原型 v2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=Space+Mono:wght@400;700&family=Sora:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0c1420;
+    --brand-900:#0a2540;--brand-700:#12457a;--brand-500:#1f6fd6;
+    --sky-300:#7db9f0;--sky-100:#e8f2fd;
+    --nfc:#00c2b8;--bt:#2f6bff;--ok:#1fb573;--warn:#f5a623;--err:#e5484d;--door:#8a63e8;
+    --paper:#f6f8fb;--card:#ffffff;--line:#e4e9f0;--muted:#6b7787;--text:#101827;
+    --radius:26px;
+    --shadow:0 22px 55px -22px rgba(10,37,64,.55);
+    --shadow-sm:0 8px 20px -12px rgba(10,37,64,.4);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-font-smoothing:antialiased}
+  body{
+    font-family:"Noto Sans SC",system-ui,sans-serif;color:#eaf1fb;
+    background:
+      radial-gradient(1200px 700px at 12% -8%, #14324f 0%, transparent 55%),
+      radial-gradient(1000px 600px at 108% 6%, #0f2b52 0%, transparent 50%),
+      linear-gradient(160deg,#070d16 0%,#0a1524 60%,#070d16 100%);
+    min-height:100vh;padding:56px clamp(18px,4vw,64px) 90px;
+  }
+  .masthead{max-width:1180px;margin:0 auto 46px;position:relative}
+  .kicker{font-family:"Space Mono",monospace;font-size:12px;letter-spacing:.42em;text-transform:uppercase;color:var(--nfc);display:flex;align-items:center;gap:14px;margin-bottom:20px}
+  .kicker::before{content:"";width:38px;height:1px;background:linear-gradient(90deg,var(--nfc),transparent)}
+  .masthead h1{font-family:"Sora",sans-serif;font-weight:800;line-height:1.02;font-size:clamp(34px,5.4vw,64px);letter-spacing:-.02em;background:linear-gradient(180deg,#ffffff,#9dc2ee);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .masthead h1 .glow{color:var(--nfc);-webkit-text-fill-color:var(--nfc)}
+  .masthead p.sub{margin-top:18px;max-width:760px;color:#a9bdd6;font-size:15.5px;line-height:1.75;font-weight:300}
+  .meta-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px}
+  .chip{font-family:"Space Mono",monospace;font-size:11.5px;letter-spacing:.06em;padding:8px 14px;border:1px solid rgba(125,185,240,.28);border-radius:999px;color:#bcd4ef;background:rgba(31,111,214,.08);backdrop-filter:blur(6px)}
+  .chip b{color:var(--nfc)}
+
+  .flow{max-width:1180px;margin:0 auto 20px;display:flex;flex-wrap:wrap;gap:12px;align-items:stretch}
+  .flow .step{flex:1;min-width:160px;border:1px solid rgba(125,185,240,.16);border-radius:18px;padding:16px 18px;background:linear-gradient(160deg,rgba(31,111,214,.12),rgba(10,37,64,.15));position:relative;overflow:hidden}
+  .flow .step .n{font-family:"Space Mono",monospace;font-size:11px;color:var(--nfc);letter-spacing:.2em}
+  .flow .step h4{font-family:"Sora",sans-serif;font-size:15.5px;margin:8px 0 4px;color:#eaf1fb}
+  .flow .step small{color:#93a8c4;font-size:12px;font-weight:300;line-height:1.5;display:block}
+  .flow .arrow{align-self:center;color:var(--sky-300);font-size:20px;opacity:.6}
+  .flow.cfg .step{background:linear-gradient(160deg,rgba(138,99,232,.14),rgba(10,37,64,.15));border-color:rgba(138,99,232,.24)}
+  .flow.cfg .step .n{color:var(--door)}
+  .flow-label{max-width:1180px;margin:34px auto 10px;font-family:"Space Mono",monospace;font-size:11px;letter-spacing:.2em;color:#7b90ac}
+  .flow-label.run{color:var(--nfc)}.flow-label.cfg{color:var(--door)}
+
+  .section{max-width:1240px;margin:0 auto}
+  .sec-head{display:flex;align-items:baseline;gap:16px;margin:64px 6px 26px;flex-wrap:wrap}
+  .sec-head .idx{font-family:"Space Mono",monospace;color:var(--nfc);font-size:13px;letter-spacing:.2em}
+  .sec-head.cfg .idx{color:var(--door)}
+  .sec-head h2{font-family:"Sora",sans-serif;font-weight:700;font-size:clamp(21px,2.6vw,30px);color:#fff;letter-spacing:-.01em}
+  .sec-head .desc{color:#8fa5c1;font-size:13.5px;font-weight:300;flex:1;min-width:220px}
+
+  .gallery{display:flex;flex-wrap:wrap;gap:38px 30px;align-items:flex-start}
+  .screen{width:300px;flex:0 0 auto}
+  .screen .label{display:flex;align-items:center;gap:9px;margin-bottom:14px;padding-left:4px}
+  .screen .label .dot{width:9px;height:9px;border-radius:50%;background:var(--nfc);box-shadow:0 0 0 4px rgba(0,194,184,.16)}
+  .screen .label .dot.warn{background:var(--warn);box-shadow:0 0 0 4px rgba(245,166,35,.16)}
+  .screen .label .dot.err{background:var(--err);box-shadow:0 0 0 4px rgba(229,72,77,.16)}
+  .screen .label .dot.ok{background:var(--ok);box-shadow:0 0 0 4px rgba(31,181,115,.16)}
+  .screen .label .dot.bt{background:var(--bt);box-shadow:0 0 0 4px rgba(47,107,255,.16)}
+  .screen .label .dot.door{background:var(--door);box-shadow:0 0 0 4px rgba(138,99,232,.16)}
+  .screen .label span{font-family:"Sora",sans-serif;font-size:13.5px;font-weight:600;color:#dbe7f6}
+  .screen .label em{font-family:"Space Mono",monospace;font-style:normal;font-size:10.5px;color:#7b90ac;margin-left:auto}
+
+  .phone{position:relative;width:300px;height:640px;border-radius:40px;padding:11px;background:linear-gradient(160deg,#1a2740,#0b1526);box-shadow:var(--shadow),inset 0 0 0 1.5px rgba(140,180,230,.18)}
+  .phone .screen-inner{position:relative;width:100%;height:100%;border-radius:30px;overflow:hidden;background:var(--paper);color:var(--text);display:flex;flex-direction:column}
+  .statusbar{height:34px;display:flex;align-items:center;justify-content:space-between;padding:0 18px;font-size:12px;font-weight:600;color:var(--brand-900);flex:0 0 auto;font-family:"Space Mono",monospace}
+  .statusbar .sig{display:flex;gap:5px;align-items:center}
+  .statusbar .sig i{width:4px;height:9px;background:var(--brand-900);border-radius:1px;display:inline-block;opacity:.35}
+  .statusbar .sig i:nth-child(1){opacity:.9;height:5px}.statusbar .sig i:nth-child(2){opacity:.9;height:7px}.statusbar .sig i:nth-child(3){opacity:.9}
+  .statusbar .batt{border:1.4px solid var(--brand-900);border-radius:3px;width:22px;height:11px;position:relative;padding:1.4px}
+  .statusbar .batt::after{content:"";position:absolute;right:-3px;top:3px;width:2px;height:5px;background:var(--brand-900);border-radius:0 1px 1px 0}
+  .statusbar .batt i{display:block;height:100%;width:72%;background:var(--ok);border-radius:1px}
+
+  .appbar{flex:0 0 auto;padding:8px 18px 14px;display:flex;align-items:center;gap:12px}
+  .appbar .back{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:#eef3f9;color:var(--brand-700);font-size:17px}
+  .appbar .ttl{font-family:"Sora",sans-serif;font-weight:700;font-size:16.5px;color:var(--brand-900)}
+  .appbar .ttl small{display:block;font-family:"Noto Sans SC";font-weight:300;font-size:11px;color:var(--muted);margin-top:2px}
+  .appbar .brand-tag{margin-left:auto;font-family:"Space Mono",monospace;font-size:10px;color:var(--brand-500);letter-spacing:.1em}
+
+  .body{flex:1;overflow:hidden;padding:4px 18px 0;display:flex;flex-direction:column}
+  .lead{font-family:"Sora",sans-serif;font-weight:700;font-size:20px;color:var(--brand-900);line-height:1.3;letter-spacing:-.01em}
+  .desc-t{color:var(--muted);font-size:13px;line-height:1.65;margin-top:8px}
+  .btn{display:flex;align-items:center;justify-content:center;gap:8px;height:50px;border-radius:16px;font-family:"Noto Sans SC";font-weight:700;font-size:15px;border:none;cursor:pointer;width:100%}
+  .btn.primary{background:linear-gradient(135deg,var(--brand-500),var(--brand-700));color:#fff;box-shadow:0 12px 24px -12px rgba(31,111,214,.8)}
+  .btn.ghost{background:#eef3f9;color:var(--brand-700)}
+  .btn.bt{background:linear-gradient(135deg,var(--bt),#1c4fd6);color:#fff;box-shadow:0 12px 24px -12px rgba(47,107,255,.7)}
+  .btn.door{background:linear-gradient(135deg,#9a76ef,var(--door));color:#fff;box-shadow:0 12px 24px -12px rgba(138,99,232,.7)}
+  .btn.nfc{background:linear-gradient(135deg,#2ad2c9,var(--nfc));color:#04322f;box-shadow:0 12px 24px -12px rgba(0,194,184,.7)}
+  .btn.sm{height:42px;font-size:13.5px;border-radius:13px}
+  .dock{margin-top:auto;padding:14px 0 18px;display:flex;flex-direction:column;gap:10px}
+
+  .tabbar{flex:0 0 auto;height:60px;border-top:1px solid var(--line);display:flex;background:#fff}
+  .tabbar .tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:10px;color:var(--muted)}
+  .tabbar .tab .ic{width:22px;height:22px;border-radius:7px;background:#eef3f9;display:grid;place-items:center;font-size:12px}
+  .tabbar .tab.on{color:var(--brand-500);font-weight:700}
+  .tabbar .tab.on .ic{background:var(--brand-500);color:#fff}
+
+  .nfc-stage{flex:1;display:grid;place-items:center;position:relative;margin:6px 0}
+  .nfc-orb{position:relative;width:186px;height:186px;display:grid;place-items:center}
+  .nfc-orb .core{width:110px;height:110px;border-radius:50%;display:grid;place-items:center;z-index:3;background:radial-gradient(circle at 35% 30%,#3ee0d6,var(--nfc));color:#04322f;box-shadow:0 20px 40px -14px rgba(0,194,184,.7)}
+  .nfc-orb.write .core{background:radial-gradient(circle at 35% 30%,#9a76ef,var(--door));color:#fff;box-shadow:0 20px 40px -14px rgba(138,99,232,.7)}
+  .nfc-orb .core svg{width:52px;height:52px}
+  .nfc-orb .ring{position:absolute;inset:0;border-radius:50%;border:2px solid var(--nfc);opacity:0;animation:ripple 2.6s ease-out infinite}
+  .nfc-orb.write .ring{border-color:var(--door)}
+  .nfc-orb .ring:nth-child(2){animation-delay:.85s}.nfc-orb .ring:nth-child(3){animation-delay:1.7s}
+  @keyframes ripple{0%{transform:scale(.62);opacity:.55}80%{opacity:0}100%{transform:scale(1.25);opacity:0}}
+
+  .radar{flex:1;display:grid;place-items:center;position:relative;margin:6px 0}
+  .radar .scope{position:relative;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(47,107,255,.12),transparent 70%);display:grid;place-items:center}
+  .radar .scope::before,.radar .scope::after{content:"";position:absolute;border:1px solid rgba(47,107,255,.28);border-radius:50%}
+  .radar .scope::before{inset:26px}.radar .scope::after{inset:60px}
+  .radar .sweep{position:absolute;inset:0;border-radius:50%;background:conic-gradient(from 0deg,rgba(47,107,255,.42),transparent 32%);animation:spin 2.4s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .radar .hub{width:66px;height:66px;border-radius:50%;background:linear-gradient(135deg,var(--bt),#1c4fd6);display:grid;place-items:center;z-index:2;box-shadow:0 14px 30px -12px rgba(47,107,255,.7)}
+  .radar .hub svg{width:30px;height:30px}
+  .radar .blip{position:absolute;width:12px;height:12px;border-radius:50%;background:var(--bt);box-shadow:0 0 0 4px rgba(47,107,255,.2)}
+  .radar .blip.b1{top:34px;left:60px;animation:pulse 1.8s infinite}
+  .radar .blip.b2{bottom:44px;right:52px;animation:pulse 1.8s .6s infinite}
+  .radar .blip.b3{top:96px;right:30px;animation:pulse 1.8s 1.1s infinite}
+  @keyframes pulse{0%,100%{transform:scale(.8);opacity:.6}50%{transform:scale(1.15);opacity:1}}
+
+  .spinner{width:64px;height:64px;border-radius:50%;border:5px solid #e0e8f2;border-top-color:var(--brand-500);animation:spin 1s linear infinite}
+  .spinner.bt-c{border-top-color:var(--bt)}
+  .spinner.door-c{border-top-color:var(--door)}
+
+  .dev-list{display:flex;flex-direction:column;gap:10px;overflow:hidden}
+  .dev{display:flex;align-items:center;gap:12px;padding:13px 14px;border-radius:15px;background:#fff;border:1px solid var(--line);box-shadow:var(--shadow-sm)}
+  .dev .ic{width:40px;height:40px;border-radius:12px;background:var(--sky-100);color:var(--bt);display:grid;place-items:center;flex:0 0 auto}
+  .dev .ic svg{width:20px;height:20px}
+  .dev .meta{flex:1;min-width:0}
+  .dev .meta b{font-size:14px;color:var(--brand-900);font-weight:700;display:block}
+  .dev .meta small{font-family:"Space Mono",monospace;font-size:10.5px;color:var(--muted)}
+  .dev .rssi{display:flex;gap:2px;align-items:flex-end;height:16px}
+  .dev .rssi i{width:3px;background:var(--bt);border-radius:1px;opacity:.3}
+  .dev .rssi i:nth-child(1){height:5px;opacity:.9}.dev .rssi i:nth-child(2){height:9px;opacity:.9}.dev .rssi i:nth-child(3){height:13px;opacity:.9}.dev .rssi i:nth-child(4){height:16px}
+  .dev.paired{border-color:rgba(47,107,255,.4);background:linear-gradient(180deg,#f2f6ff,#fff)}
+  .dev .tag{font-size:10px;font-family:"Space Mono",monospace;color:var(--bt);border:1px solid rgba(47,107,255,.35);padding:2px 7px;border-radius:6px}
+
+  /* 设备维护行 */
+  .mrow{display:flex;flex-direction:column;gap:0;padding:13px 14px;border-radius:15px;background:#fff;border:1px solid var(--line);box-shadow:var(--shadow-sm)}
+  .mrow .top{display:flex;align-items:center;gap:11px}
+  .mrow .ic{width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,#9a76ef,var(--door));color:#fff;display:grid;place-items:center;flex:0 0 auto}
+  .mrow .ic svg{width:19px;height:19px}
+  .mrow .meta{flex:1;min-width:0}
+  .mrow .meta b{font-size:14px;color:var(--brand-900);font-weight:700;display:block}
+  .mrow .meta small{font-family:"Space Mono",monospace;font-size:10px;color:var(--muted);display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .mrow .acts{display:flex;gap:8px;margin-top:11px;padding-top:11px;border-top:1px dashed var(--line)}
+  .mini-btn{flex:1;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;gap:6px;font-size:12px;font-weight:700;border:none;cursor:pointer}
+  .mini-btn.write{background:linear-gradient(135deg,#2ad2c9,var(--nfc));color:#04322f}
+  .mini-btn.edit{background:#eef3f9;color:var(--brand-700)}
+  .mini-btn svg{width:14px;height:14px}
+
+  /* 表单 */
+  .field{margin-bottom:13px}
+  .field label{display:block;font-size:12px;color:var(--muted);font-weight:500;margin-bottom:6px}
+  .field label .req{color:var(--err)}
+  .field .inp{width:100%;height:44px;border-radius:12px;border:1.5px solid var(--line);background:#fff;padding:0 13px;font-family:"Space Mono",monospace;font-size:13px;color:var(--brand-900)}
+  .field .inp.zh{font-family:"Noto Sans SC"}
+  .field .inp:focus{outline:none;border-color:var(--brand-500)}
+  .field .hint{font-size:10.5px;color:var(--muted);margin-top:5px;font-family:"Space Mono",monospace}
+  .field.focus .inp{border-color:var(--door);box-shadow:0 0 0 3px rgba(138,99,232,.14)}
+
+  .fab{position:absolute;right:16px;bottom:74px;width:54px;height:54px;border-radius:18px;background:linear-gradient(135deg,#9a76ef,var(--door));color:#fff;display:grid;place-items:center;box-shadow:0 14px 28px -10px rgba(138,99,232,.75);font-size:26px;z-index:6}
+
+  .result-card{background:#fff;border-radius:18px;padding:18px;box-shadow:var(--shadow-sm);border:1px solid var(--line)}
+  .kv{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px dashed var(--line);font-size:13px;gap:10px}
+  .kv:last-child{border-bottom:none}
+  .kv .k{color:var(--muted);flex:0 0 auto}
+  .kv .v{font-family:"Space Mono",monospace;font-weight:700;color:var(--brand-900);font-size:12px;text-align:right;overflow:hidden;text-overflow:ellipsis}
+  .kv .v.zh{font-family:"Noto Sans SC"}
+  .badge-line{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;padding:5px 12px;border-radius:999px}
+  .badge-line.ok{background:#e6f7ef;color:var(--ok)}
+  .badge-line.err{background:#fdecec;color:var(--err)}
+  .badge-line.door{background:#f1ecfd;color:var(--door)}
+
+  .status-hero{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:6px}
+  .status-ic{width:104px;height:104px;border-radius:50%;display:grid;place-items:center;margin-bottom:8px}
+  .status-ic.ok{background:radial-gradient(circle at 35% 30%,#4fd99e,var(--ok));box-shadow:0 20px 40px -14px rgba(31,181,115,.6)}
+  .status-ic.err{background:radial-gradient(circle at 35% 30%,#ff7a7f,var(--err));box-shadow:0 20px 40px -14px rgba(229,72,77,.55)}
+  .status-ic.warn{background:radial-gradient(circle at 35% 30%,#ffca6b,var(--warn));box-shadow:0 20px 40px -14px rgba(245,166,35,.55)}
+  .status-ic.door{background:radial-gradient(circle at 35% 30%,#9a76ef,var(--door));box-shadow:0 20px 40px -14px rgba(138,99,232,.6)}
+  .status-ic svg{width:52px;height:52px}
+
+  .perm{display:flex;align-items:center;gap:13px;padding:14px 0;border-bottom:1px solid var(--line)}
+  .perm:last-child{border-bottom:none}
+  .perm .ic{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;flex:0 0 auto;color:#fff}
+  .perm .ic.nfc{background:linear-gradient(135deg,#2ad2c9,var(--nfc))}
+  .perm .ic.bt{background:linear-gradient(135deg,#4d7dff,var(--bt))}
+  .perm .ic svg{width:22px;height:22px}
+  .perm .txt{flex:1}
+  .perm .txt b{font-size:13.5px;color:var(--brand-900);font-weight:700;display:block}
+  .perm .txt small{font-size:11.5px;color:var(--muted);line-height:1.4;display:block;margin-top:2px}
+  .perm .sw{width:44px;height:26px;border-radius:999px;position:relative;flex:0 0 auto;background:var(--ok)}
+  .perm .sw.off{background:#cfd8e3}
+  .perm .sw::after{content:"";position:absolute;top:3px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 2px 4px rgba(0,0,0,.2);right:3px}
+  .perm .sw.off::after{right:auto;left:3px}
+
+  .sheet{position:absolute;left:12px;right:12px;bottom:14px;background:#fff;border-radius:22px;padding:20px;box-shadow:0 -10px 40px -10px rgba(0,0,0,.3);z-index:5}
+  .sheet .grip{width:38px;height:4px;border-radius:2px;background:#dbe2ec;margin:0 auto 16px}
+  .scrim{position:absolute;inset:0;background:rgba(10,20,35,.45);backdrop-filter:blur(2px);z-index:4}
+
+  .alert{display:flex;gap:10px;padding:12px 14px;border-radius:13px;font-size:12.5px;line-height:1.5}
+  .alert.warn{background:#fff6e5;color:#8a5a00;border:1px solid #ffe3ad}
+  .alert.info{background:var(--sky-100);color:var(--brand-700);border:1px solid #cfe3fa}
+  .alert.ok{background:#e6f7ef;color:#0f6b45;border:1px solid #b7e6cf}
+  .alert.door{background:#f1ecfd;color:#5b3fb0;border:1px solid #d9cdf7}
+  .alert .i{flex:0 0 auto;font-weight:800}
+
+  .caption{max-width:1240px;margin:16px auto 0;padding:0 6px}
+  .caption p{color:#8298b6;font-size:12.5px;font-weight:300;line-height:1.6}
+  .caption b{color:#bcd4ef;font-weight:600}
+
+  footer.legend{max-width:1240px;margin:80px auto 0;padding:28px;border-radius:20px;border:1px solid rgba(125,185,240,.16);background:linear-gradient(160deg,rgba(31,111,214,.08),rgba(10,37,64,.12))}
+  footer.legend h3{font-family:"Sora";font-size:16px;color:#eaf1fb;margin-bottom:16px}
+  .legend-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
+  .legend-grid .li{display:flex;gap:12px;align-items:flex-start}
+  .legend-grid .li .sw{width:14px;height:14px;border-radius:4px;flex:0 0 auto;margin-top:3px}
+  .legend-grid .li b{color:#dbe7f6;font-size:13px;font-family:"Sora"}
+  .legend-grid .li small{color:#8fa5c1;font-size:11.5px;display:block;line-height:1.5;font-weight:300}
+  .disclaimer{max-width:1240px;margin:26px auto 0;padding:0 6px;color:#61758f;font-size:11.5px;font-family:"Space Mono",monospace;letter-spacing:.03em;line-height:1.7}
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="kicker">Prototype · v2 · 碰一碰开门</div>
+  <h1>平安白云<br><span class="glow">碰一碰开门</span>&nbsp;· 原型 v2</h1>
+  <p class="sub">安卓 NFC 冷启动唤起 + BLE 蓝牙门禁 APP 关键页面原型。本轮据「蓝牙门禁协议规格」与提出方答复迭代：新增<b style="color:#cfe0f5">蓝牙信息维护</b>与<b style="color:#cfe0f5">NFC 写卡</b>两条流程、把读卡结果改造为「读出门禁四要素并自动连接开门」、连接段补 DES 握手与开门回执状态、权限按 Android 12+ 免定位调整。文案为占位示例，最终以 PRD 定稿为准。</p>
+  <div class="meta-row">
+    <span class="chip">平台 · <b>Android 12+</b></span>
+    <span class="chip">触发 · <b>NDEF 冷启动</b></span>
+    <span class="chip">连接 · <b>BLE / GATT</b></span>
+    <span class="chip">动作 · <b>DES 握手开门</b></span>
+    <span class="chip">存储 · <b>本地 · 无后端</b></span>
+    <span class="chip">页面 · <b>21 屏</b></span>
+  </div>
+</header>
+
+<div class="flow-label run">运行流程 · 碰卡开门</div>
+<div class="flow">
+  <div class="step"><div class="n">RUN 01</div><h4>碰卡冷启动</h4><small>NDEF 自定义 MIME intent-filter，未启动也能唤起 APP</small></div>
+  <div class="arrow">→</div>
+  <div class="step"><div class="n">RUN 02</div><h4>读出四要素</h4><small>解析门名 / MAC / 开锁 Key / 蓝牙名</small></div>
+  <div class="arrow">→</div>
+  <div class="step"><div class="n">RUN 03</div><h4>BLE 连接</h4><small>按 MAC/蓝牙名扫描连接，服务/特征动态选</small></div>
+  <div class="arrow">→</div>
+  <div class="step"><div class="n">RUN 04</div><h4>握手开门</h4><small>DES 握手→密钥/时间同步→开门指令→回执</small></div>
+</div>
+
+<div class="flow-label cfg">配置流程 · 设备维护与写卡</div>
+<div class="flow cfg">
+  <div class="step"><div class="n">CFG 01</div><h4>维护门禁参数</h4><small>蓝牙信息页：门名/MAC/Key/蓝牙名增删改查</small></div>
+  <div class="arrow">→</div>
+  <div class="step"><div class="n">CFG 02</div><h4>选择要写入的门</h4><small>从设备条目进入「写入 NFC 卡」</small></div>
+  <div class="arrow">→</div>
+  <div class="step"><div class="n">CFG 03</div><h4>贴卡写入</h4><small>把四要素以 NDEF 写入空白卡</small></div>
+  <div class="arrow">→</div>
+  <div class="step"><div class="n">CFG 04</div><h4>成为门禁卡</h4><small>此后碰卡即走上方运行流程自动开门</small></div>
+</div>
+
+<!-- ============ 分区 1：启动与权限 ============ -->
+<section class="section">
+  <div class="sec-head">
+    <span class="idx">01 /</span>
+    <h2>启动 · 权限申请</h2>
+    <span class="desc">Android 12+ 权限组：NFC + 蓝牙（BLUETOOTH_SCAN 声明 neverForLocation，免定位）；数据全本地。</span>
+  </div>
+  <div class="gallery">
+
+    <div class="screen">
+      <div class="label"><span class="dot"></span><span>权限申请引导</span><em>P-01</em></div>
+      <div class="phone"><div class="screen-inner">
+        <div class="statusbar"><span>9:41</span><div class="sig"><i></i><i></i><i></i></div><div class="batt"><i></i></div></div>
+        <div class="appbar"><div class="ttl">开启前的准备<small>需授予以下权限以完成碰卡开门</small></div><span class="brand-tag">BAIYUN</span></div>
+        <div class="body">
+          <div class="perm">
+            <div class="ic nfc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 8c4-3 12-3 16 0M6 12c3-2 9-2 12 0M9 16c1.5-1 4.5-1 6 0"/></svg></div>
+            <div class="txt"><b>NFC 近场通信</b><small>读取 / 写入门禁卡，并支持碰卡冷启动唤起</small></div>
+            <div class="sw"></div>
+          </div>
+          <div class="perm">
+            <div class="ic bt"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 7l10 10-5 4V3l5 4L7 17"/></svg></div>
+            <div class="txt"><b>附近的蓝牙设备</b><small>BLUETOOTH_SCAN / CONNECT，扫描并连接门禁</small></div>
+            <div class="sw"></div>
+          </div>
+          <div class="alert ok" style="margin-top:16px"><span class="i">✓</span><span>已声明 <b>neverForLocation</b>，<b>无需定位权限</b>；所有数据保存在本机，无需联网。</span></div>
+          <div class="dock">
+            <button class="btn primary">一键授予全部权限</button>
+            <button class="btn ghost sm">稍后再说</button>
+          </div>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="screen">
+      <div class="label"><span class="dot warn"></span><span>异常 · NFC 未开启</span><em>P-02</em></div>
+      <div class="phone"><div class="screen-inner">
+        <div class="statusbar"><span>9:41</span><div class="sig"><i></i><i></i><i></i></div><div class="batt"><i></i></div></div>
+        <div class="appbar"><div class="back">‹</div><div class="ttl">首页</div><span class="brand-tag">BAIYUN</span></div>
+        <div class="body" style="filter:blur(1.5px);opacity:.6">
+          <div class="nfc-stage"><div class="nfc-orb"><div class="core"></div></div></div>
+        </div>
+        <div class="scrim"></div>
+        <div class="sheet">
+          <div class="grip"></div>
+          <div style="display:flex;gap:12px;align-items:center;margin-bottom:12px">
+            <div class="status-ic warn" style="width:52px;height:52px;margin:0"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4"><path d="M12 8v5M12 17h.01"/><circle cx="12" cy="12" r="9"/></svg></div>
+            <div><div class="lead" style="font-size:17px">NFC 未开启</div><div class="desc-t" style="margin-top:2px">请在系统设置中打开 NFC 后重试碰卡</div></div>
+          </div>
+          <button class="btn primary" style="margin-top:6px">前往系统设置</button>
+          <button class="btn ghost sm" style="margin-top:9px">我已开启，重试</button>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="screen">
+      <div class="label"><span class="dot warn"></span><span>异常 · 蓝牙未开启</span><em>P-03</em></div>
+      <div class="phone"><div class="screen-inner">
+        <div class="statusbar"><span>9:41</span><div class="sig"><i></i><i></i><i></i></div><div class="batt"><i></i></div></div>
+        <div class="appbar"><div class="back">‹</div><div class="ttl">蓝牙连接</div><span class="brand-tag">BAIYUN</span></div>
+        <div class="body" style="filter:blur(1.5px);opacity:.6">
+          <div class="radar"><div class="scope"><div class="hub"></div></div></div>
+        </div>
+        <div class="scrim"></div>
+        <div class="sheet">
+          <div class="grip"></div>
+          <div style="display:flex;gap:12px;align-items:center;margin-bottom:12px">
+            <div class="status-ic warn" style="width:52px;height:52px;margin:0;background:radial-gradient(circle at 35% 30%,#7aa0ff,var(--bt))"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M7 7l10 10-5 4V3l5 4L7 17"/></svg></div>
+            <div><div class="lead" style="font-size:17px">蓝牙未开启</div><div class="desc-t" style="margin-top:2px">开启蓝牙后即可自动扫描门禁设备</div></div>
+          </div>
+          <button class="btn bt" style="margin-top:6px">开启蓝牙</button>
+          <button class="btn ghost sm" style="margin-top:9px">取消</button>
+        </div>
+      </div></div>
+    </div>
+
+  </div>
+  <div class="caption"><p><b>本轮变化：</b>移除位置权限项，改为「已声明 neverForLocation · 免定位」的确认条；权限文案含「读/写门禁卡 + 冷启动」。</p></div>
+</section>
+
+<!-- ============ 分区 2：NFC 碰卡读卡 ============ -->
+<section class="section">
+  <div class="sec-head">
+    <span class="idx">02 /</span>
+    <h2>NFC · 碰卡读卡（冷启动落地）</h2>
+    <span class="desc">碰卡冷启动后的落地页：读出 NDEF 门禁四要素 → 自动匹配设备并直连开门。</span>
+  </div>
+  <div class="gallery">
+
+    <div class="screen">
+      <div class="label"><span class="dot"></span><span>碰卡引导（等待）</span><em>N-01</em></div>
+      <div class="phone"><div class="screen-inner">
+        <div class="statusbar"><span>9:41</span><div class="sig"><i></i><i></i><i></i></div><div class="batt"><i></i></div></div>
+        <div class="appbar"><div class="ttl">平安白云<small>将门禁卡贴近手机背面</small></div><span class="brand-tag">BAIYUN</span></div>
+        <div class="body">
+          <div class="nfc-stage">
+            <div class="nfc-orb">
+              <div class="ring"></div><div class="ring"></div><div class="ring"></div>
+              <div class="core"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 8c4-3 12-3 16 0M6 12c3-2 9-2 12 0M9 16c1.5-1 4.5-1 6 0"/></svg></div>
+            </div>
+          </div>
+          <div style="text-align:center;margin-bottom:6px"><div class="lead">碰一碰开门</div><div class="desc-t">将门禁卡靠近手机背部感应区</div></div>
+          <div class="dock"><div class="alert info"><span class="i">i</span><span>碰卡后自动读出门禁参数并连接开门；未启动时也会被卡片唤起</span></div></div>
+        </div>
+        <div class="tabbar">
+          <div class="tab on"><div class="ic">◈</div>碰卡</div>
+          <div class="tab"><div class="ic">≋</div>蓝牙信息</div>
+          <div class="tab"><div class="ic">⚙</div>设置</div>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="screen">
+      <div class="label"><span class="dot"></span><span>读卡中（加载）</span><em>N-02</em></div>
+      <div class="phone"><div class="screen-inner">
+        <div class="statusbar"><span>9:41</span><div class="sig"><i></i><i></i><i></i></div><div class="batt"><i></i></div></div>
+        <div class="appbar"><div class="ttl">读取门禁卡<small>请勿移开卡片</small></div><span class="brand-tag">BAIYUN</span></div>
+        <div class="body">
+          <div class="nfc-stage"><div class="spinner"></div></div>
+          <div style="text-align:center"><div class="lead">正在读取门禁参数…</div><div class="desc-t">解析 NDEF 记录（门名 / MAC / Key / 蓝牙名）</div></div>
+          <div class="dock">
+            <div class="result-card">
+              <div class="kv"><span class="k">感应状态</span><span class="v" style="color:var(--nfc)">已感应 ●</span></div>
+              <div class="kv"><span class="k">记录类型</span><span class="v">NDEF · MIME</span></div>
+            </div>
+          </div>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="screen">
+      <div class="label"><span class="dot ok"></span><span>读卡成功 · 自动连接</span><em>N-03</em></div>
+      <div class="phone"><div class="screen-inner">
+        <div class="statusbar"><span>9:41</span><div class="sig"><i></i><i></i><i></i></div><div class="batt"><i></i></div></div>
+        <div class="appbar"><div class="back">‹</div><div class="ttl">已识别门禁</div><span class="brand-tag">BAIYUN</span></div>
+        <div class="body">
+          <div style="text-align:center;padding:6px 0 12px">
+            <div class="status-ic ok" style="width:70px;height:70px;margin:0 auto 8px"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6"><path d="M5 13l4 4L19 7"/></svg></div>
+            <div class="lead" style="font-size:18px">1栋大堂门</div>
+            <span class="badge-line ok" style="margin-top:8px">卡片有效 · 正在自动连接</span>
+          </div>
+          <div class="result-card">
+            <div class="kv"><span class="k">门名</span><span class="v zh">1栋大堂门</span></div>
+            <div class="kv"><span class="k">蓝牙名</span><span class="v">BY-Lock-08</span></div>
+            <div class="kv"><span class="k">MAC</span><span class="v">C4:2F:90:AB:07:11</span></div>
+            <div class="kv"><span class="k">开锁 Key</span><span class="v">7A3F…·B1（hex）</span></div>
+          </div>
+          <div class="dock"><div class="alert info"><span class="i">i</span><span>已从卡中读出四要素，正在按 MAC 直连并准备开门</span></div><button class="btn door">立即连接开门</button></div>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="screen">
+      <div class="label"><span class="dot err"></span><span>读卡失败</span><em>N-04</em></div>
+      <div class="phone"><div class="screen-inner">
+        <div class="statusbar"><span>9:41</span><div class="sig"><i></i><i></i><i></i></div><div class="batt"><i></i></div></div>
+        <div class="appbar"><div class="back">‹</div><div class="ttl">读卡结果</div><span class="brand-tag">BAIYUN</span></div>
+        <div class="body">
+          <div class="status-hero">
+            <div class="status-ic err"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6"><path d="M8 8l8 8M16 8l-8 8"/></svg></div>
+            <div class="lead">读卡失败</div>
+            <div class="desc-t" style="max-width:230px">未读到有效门禁数据，可能是空白卡、非本 APP 写入或贴卡时间过短</div>
+            <div class="alert warn" style="margin-top:16px;text-align:left"><span class="i">!</span><span>若为新卡请先在「蓝牙信息」页写入参数；贴卡请平稳贴住 1-2 秒</span></div>
+          </div>
+          <div class="dock"><button class="btn primary">重新贴卡</button><button class="btn ghost sm">去写入门禁参数</button></div>
+        </div>
+      </div></div>
+    </div>
+
+  </div>
+  <div class="caption"><p><b>本轮变化：</b>N-03 由「UID/绑定设备」改为读出 <b>NDEF 四要素（门名/MAC/Key/蓝牙名）并自动连接</b>；N-04 失败引导指向「写入门禁参数」。</p></div>
+</section>
+
+<!-- ============ 分区 3：蓝牙扫描 ============ -->
+<section class="section">
+  <div class="sec-head">
+    <span class="idx">03 /</span>
+    <h2>蓝牙 · 扫描发现</h2>
+    <span class="desc">碰卡后按 MAC/蓝牙名自动匹配直连；手动入口保留扫描中、设备列表、无设备空态。</span>
+  </div>
+  <div class="gallery">
+
+    <div class="screen">
+      <div class="label"><span class="dot bt"></span><span>扫描中（加载）</span><em>B-01</em></div>
+      <div class="phone"><div class="screen-inner">
+        <div class="statusbar"><span>9:41</span><div class="sig"><i></i><i></i><i></i></div><div class="batt"><i></i></div></div>
+        <div class="appbar"><div class="ttl">扫描附近门禁<small>正在搜索 BLE 设备…</small></div><span class="brand-tag">BAIYUN</span></div>
+        <div class="body">
+          <div class="radar">
+            <div class="scope">
+              <div class="sweep"></div>
+              <div class="blip b1"></div><div class="blip b2"></div><div class="blip b3"></div>
+              <div class="hub"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M7 7l10 10-5 4V3l5 4L7 17"/></svg></div>
+            </div>
+          </div>
+          <div style="text-align:center"><div class="lead">正在扫描…</div><div class="desc-t">已发现 3 个 BLE 设备</div></div>
+          <div class="dock"><button class="btn ghost sm">停止扫描</button></div>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="screen">
+      <div class="label"><span class="dot bt"></span><span>设备列表</span><em>B-02</em></div>
+      <div class="phone"><div class="screen-inner">
+        <div class="statusbar"><span>9:41</span><div class="sig"><i></i><i></i><i></i></div><div class="batt"><i></i></div></div>
+        <div class="appbar"><div class="back">‹</div><div class="ttl">选择门禁<small>3 个可用设备</small></div><span class="brand-tag">BAIYUN</span></div>
+        <div class="body">
+          <div class="dev-list">
+            <div class="dev paired">
+              <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 7l10 10-5 4V3l5 4L7 17"/></svg></div>
+              <div class="meta"><b>BY-Lock-08 <span class="tag">卡片匹配</span></b><small>C4:2F:90:AB:07:11</small></div>
+              <div class="rssi"><i></i><i></i><i></i><i></i></div>
+            </div>
+            <div class="dev">
+              <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 7l10 10-5 4V3l5 4L7 17"/></svg></div>
+              <div class="meta"><b>BY-Gate-21</b><small>A0:1B:44:2C:9E:60</small></div>
+              <div class="rssi"><i></i><i></i><i></i><i style="opacity:.3"></i></div>
+            </div>
+            <div class="dev">
+              <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 7l10 10-5 4V3l5 4L7 17"/></svg></div>
+              <div class="meta"><b>Unknown-3F</b><small>7E:99:03:1A:5B:D2</small></div>
+              <div class="rssi"><i></i><i></i><i style="opacity:.3"></i><i style="opacity:.3"></i></div>
+            </div>
+          </div>
+          <div class="dock"><div class="alert info"><span class="i">i</span><span>「卡片匹配」为读卡指向的目标门，优先自动连接</span></div><button class="btn door">连接并开门</button></div>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="screen">
+      <div class="label"><span class="dot warn"></span><span>空态 · 未发现设备</span><em>B-03</em></div>
+      <div class="phone"><div class="screen-inner">
+        <div class="statusbar"><span>9:41</span><div class="sig"><i></i><i></i><i></i></div><div class="batt"><i></i></div></div>
+        <div class="appbar"><div class="back">‹</div><div class="ttl">选择门禁</div><span class="brand-tag">BAIYUN</span></div>
+        <div class="body">
+          <div class="status-hero">
+            <div class="status-ic warn" style="background:radial-gradient(circle at 35% 30%,#9fb8ff,#b9c6dc)"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg></div>
+            <div class="lead">未发现可用门禁</div>
+            <div class="desc-t" style="max-width:230px">请确认目标门禁已通电、处于可被发现状态并在有效范围内</div>
+            <div class="alert warn" style="margin-top:16px;text-align:left"><span class="i">!</span><span>靠近设备后重新扫描，或检查是否已被其他手机占用连接</span></div>
+          </div>
+          <div class="dock"><button class="btn bt">重新扫描</button><button class="btn ghost sm">返回碰卡</button></div>
+        </div>
+      </div></div>
+    </div>
+
+  </div>
+  <div class="caption"><p><b>状态覆盖：</b>扫描中 · 有设备（卡片匹配高亮）· 无设备空态。协议 Service UUID 候选与 notify/read/write 特征在连接时动态选择，列表层无需暴露。</p></div>
+</section>
+
+<!-- ============ 分区 4：连接握手开门 ============ -->
+<section class="section">
+  <div class="sec-head">
+    <span class="idx">04 /</span>
+    <h2>连接 · DES 握手开门</h2>
+    <span class="desc">连接 → DES 加密握手 / 密钥·时间同步 → 下发开门指令（A5..5A 帧 + 补码校验）→ 解析回执（00 成功 / 02 已开）。</span>
+  </div>
+  <div class="gallery">
+
+    <div class="screen">
+      <div class="label"><span class="dot bt"></span><span>连接 · 握手中</span><em>C-01</em></div>
+      <div class="phone"><div class="screen-inner">
+        <div class="statusbar"><span>9:41</span><div class="sig"><i></i><i></i><i></i></div><div class="batt"><i></i></div></div>
+        <div class="appbar"><div class="ttl">连接门禁<small>1栋大堂门 · BY-Lock-08</small></div><span class="brand-tag">BAIYUN</span></div>
+        <div class="body">
+          <div class="radar"><div class="spinner bt-c"></div></div>
+          <div style="text-align:center"><div class="lead">正在建立安全连接…</div><div class="desc-t">DES 握手与密钥 / 时间同步</div></div>
+          <div class="dock">
+            <div class="result-card">
+              <div class="kv"><span class="k">GATT 连接</span><span class="v" style="color:var(--ok)">已连接 ✓</span></div>
+              <div class="kv"><span class="k">DES 握手</span><span class="v" style="color:var(--bt)">进行中…</span></div>
+              <div class="kv"><span class="k">密钥 / 时间同步</span><span class="v" style="color:var(--muted)">等待</span></div>
+            </div>
+            <button class="btn ghost sm">取消</button>
+          </div>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="screen">
+      <div class="label"><span class="dot door"></span><span>开门中（下发指令）</span><em>C-02</em></div>
+      <div class="phone"><div class="screen-inner">
+        <div class="statusbar"><span>9:41</span><div class="sig"><i></i><i></i><i></i></div><div class="batt"><i></i></div></div>
+        <div class="appbar"><div class="ttl">开门中<small>1栋大堂门</small></div><span class="brand-tag">BAIYUN</span></div>
+        <div class="body">
+          <div class="radar"><div class="spinner door-c"></div></div>
+          <div style="text-align:center"><div class="lead">正在开门…</div><div class="desc-t">已下发开门指令，等待门禁回执</div></div>
+          <div class="dock">
+            <div class="result-card">
+              <div class="kv"><span class="k">握手 / 同步</span><span class="v" style="color:var(--ok)">完成 ✓</span></div>
+              <div class="kv"><span class="k">开门指令</span><span class="v">A5 … 5A</span></div>
+              <div class="kv"><span class="k">回执</span><span class="v" style="color:var(--door)">等待中…</span></div>
+            </div>
+          </div>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="screen">
+      <div class="label"><span class="dot ok"></span><span>开门成功（回执 00）</span><em>C-03</em></div>
+      <div class="phone"><div class="screen-inner">
+        <div class="statusbar"><span>9:41</span><div class="sig"><i></i><i></i><i></i></div><div class="batt"><i></i></div></div>
+        <div class="appbar"><div class="ttl">开门成功</div><span class="brand-tag">BAIYUN</span></div>
+        <div class="body">
+          <div class="status-hero">
+            <div class="status-ic ok"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4"><path d="M5 11V8a5 5 0 019.6-2M6 11h9a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2v-6a2 2 0 012-2z" stroke-linecap="round"/><path d="M10.5 15.5l1.5 1.5 2.5-3" stroke-width="2"/></svg></div>
+            <div class="lead">门已打开</div>
+            <span class="badge-line ok" style="margin-top:6px">回执 00 · 开门成功</span>
+            <div class="desc-t" style="max-width:230px;margin-top:8px">1栋大堂门 已为你开启，请通行</div>
+          </div>
+          <div class="dock"><div class="alert ok"><span class="i">✓</span><span>本次连接可保持数秒以便再次开门，随后自动断开</span></div><button class="btn primary">完成</button></div>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="screen">
+      <div class="label"><span class="dot door"></span><span>门已开（回执 02）</span><em>C-04</em></div>
+      <div class="phone"><div class="screen-inner">
+        <div class="statusbar"><span>9:41</span><div class="sig"><i></i><i></i><i></i></div><div class="batt"><i></i></div></div>
+        <div class="appbar"><div class="ttl">门已开启</div><span class="brand-tag">BAIYUN</span></div>
+        <div class="body">
+          <div class="status-hero">
+            <div class="status-ic door"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><path d="M5 21V5a2 2 0 012-2h7a2 2 0 012 2v16"/><path d="M3 21h18"/><circle cx="13" cy="12" r="1" fill="#fff"/></svg></div>
+            <div class="lead">门已处于开启状态</div>
+            <span class="badge-line door" style="margin-top:6px">回执 02 · 门已开</span>
+            <div class="desc-t" style="max-width:230px;margin-top:8px">门禁反馈当前已开启，无需重复开门，可直接通行</div>
+          </div>
+          <div class="dock"><button class="btn primary">完成</button></div>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="screen">
+      <div class="label"><span class="dot err"></span><span>连接 / 开门失败</span><em>C-05</em></div>
+      <div class="phone"><div class="screen-inner">
+        <div class="statusbar"><span>9:41</span><div class="sig"><i></i><i></i><i></i></div><div class="batt"><i></i></div></div>
+        <div class="appbar"><div class="back">‹</div><div class="ttl">开门失败</div><span class="brand-tag">BAIYUN</span></div>
+        <div class="body">
+          <div class="status-hero">
+            <div class="status-ic err"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4"><path d="M12 7v6M12 17h.01"/><path d="M4 8v8M20 8v8M8 4h8M8 20h8"/></svg></div>
+            <div class="lead">开门失败</div>
+            <div class="desc-t" style="max-width:230px">未能完成握手或开门（超时 / 距离过远 / 校验不通过）</div>
+            <div class="alert warn" style="margin-top:16px;text-align:left"><span class="i">!</span><span>错误码 GATT_133 · 请靠近门禁后重试，或确认卡内 Key 与该门匹配</span></div>
+          </div>
+          <div class="dock"><button class="btn door">重试开门</button><button class="btn ghost sm">选择其他门禁</button></div>
+        </div>
+      </div></div>
+    </div>
+
+  </div>
+  <div class="caption"><p><b>本轮变化：</b>C 段由「连接三态」扩展为完整开门链路：<b>握手中(C-01) → 开门中(C-02) → 开门成功·回执00(C-03) → 门已开·回执02(C-04) → 失败(C-05)</b>，映射协议帧 A5..5A 与回执码。</p></div>
+</section>
+
+<!-- ============ 分区 5：蓝牙信息维护（新增） ============ -->
+<section class="section">
+  <div class="sec-head cfg">
+    <span class="idx">05 /</span>
+    <h2>蓝牙信息维护（新增）</h2>
+    <span class="desc">门禁设备参数的增删改查（门名 / MAC / 开锁 Key / 蓝牙名），本地存储；每条含「写入 NFC 卡」入口。</span>
+  </div>
+  <div class="gallery">
+
+    <div class="screen">
+      <div class="label"><span class="dot door"></span><span>设备列表（维护页）</span><em>M-01</em></div>
+      <div class="phone"><div class="screen-inner">
+        <div class="statusbar"><span>9:41</span><div class="sig"><i></i><i></i><i></i></div><div class="batt"><i></i></div></div>
+        <div class="appbar"><div class="ttl">蓝牙信息<small>2 个门禁 · 本地保存</small></div><span class="brand-tag">BAIYUN</span></div>
+        <div class="body">
+          <div class="dev-list">
+            <div class="mrow">
+              <div class="top">
+                <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 21V5a2 2 0 012-2h7a2 2 0 012 2v16"/><path d="M3 21h18M13 12h.01"/></svg></div>
+                <div class="meta"><b>1栋大堂门</b><small>BY-Lock-08 · C4:2F:90:AB:07:11</small></div>
+              </div>
+              <div class="acts">
+                <button class="mini-btn write"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 8c4-3 12-3 16 0M8 13c2-1.5 6-1.5 8 0"/></svg>写入 NFC 卡</button>
+                <button class="mini-btn edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20h4L18 10l-4-4L4 16v4z"/></svg>编辑</button>
+              </div>
+            </div>
+            <div class="mrow">
+              <div class="top">
+                <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 21V5a2 2 0 012-2h7a2 2 0 012 2v16"/><path d="M3 21h18M13 12h.01"/></svg></div>
+                <div class="meta"><b>地库3层门</b><small>BY-Gate-21 · A0:1B:44:2C:9E:60</small></div>
+              </div>
+              <div class="acts">
+                <button class="mini-btn write"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 8c4-3 12-3 16 0M8 13c2-1.5 6-1.5 8 0"/></svg>写入 NFC 卡</button>
+                <button class="mini-btn edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20h4L18 10l-4-4L4 16v4z"/></svg>编辑</button>
+              </div>
+            </div>
+          </div>
+          <div class="fab">＋</div>
+        </div>
+        <div class="tabbar">
+          <div class="tab"><div class="ic">◈</div>碰卡</div>
+          <div class="tab on"><div class="ic">≋</div>蓝牙信息</div>
+          <div class="tab"><div class="ic">⚙</div>设置</div>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="screen">
+      <div class="label"><span class="dot door"></span><span>新增 / 编辑门禁参数</span><em>M-02</em></div>
+      <div class="phone"><div class="screen-inner">
+        <div class="statusbar"><span>9:41</span><div class="sig"><i></i><i></i><i></i></div><div class="batt"><i></i></div></div>
+        <div class="appbar"><div class="back">‹</div><div class="ttl">编辑门禁<small>四要素 · 本地保存</small></div><span class="brand-tag">BAIYUN</span></div>
+        <div class="body">
+          <div class="field"><label>门名 <span class="req">*</span></label><input class="inp zh" value="1栋大堂门"></div>
+          <div class="field"><label>蓝牙名 <span class="req">*</span></label><input class="inp" value="BY-Lock-08"></div>
+          <div class="field"><label>MAC 地址 <span class="req">*</span></label><input class="inp" value="C4:2F:90:AB:07:11"><div class="hint">格式 XX:XX:XX:XX:XX:XX</div></div>
+          <div class="field focus"><label>开锁 Key（hex）<span class="req">*</span></label><input class="inp" value="7A3F9C21B4E0…B1"><div class="hint">十六进制，来自门禁配置</div></div>
+          <div class="dock">
+            <button class="btn nfc"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 8c4-3 12-3 16 0M8 13c2-1.5 6-1.5 8 0"/></svg>保存并写入 NFC 卡</button>
+            <button class="btn ghost sm">仅保存</button>
+          </div>
+        </div>
+      </div></div>
+    </div>
+
+  </div>
+  <div class="caption"><p><b>新增流程：</b>维护页支持增（FAB ＋）/ 删 / 改 / 查；表单收集四要素并校验；「保存并写入 NFC 卡」直接进入下方写卡流程。数据全本地存储、无后端。</p></div>
+</section>
+
+<!-- ============ 分区 6：NFC 写卡（新增） ============ -->
+<section class="section">
+  <div class="sec-head cfg">
+    <span class="idx">06 /</span>
+    <h2>NFC 写卡（新增）</h2>
+    <span class="desc">选择设备 → 贴卡把四要素以 NDEF 写入卡 → 写入结果 / 失败重试。写入后该卡即成为可碰卡开门的门禁卡。</span>
+  </div>
+  <div class="gallery">
+
+    <div class="screen">
+      <div class="label"><span class="dot door"></span><span>写卡 · 选择设备</span><em>W-01</em></div>
+      <div class="phone"><div class="screen-inner">
+        <div class="statusbar"><span>9:41</span><div class="sig"><i></i><i></i><i></i></div><div class="batt"><i></i></div></div>
+        <div class="appbar"><div class="back">‹</div><div class="ttl">写入 NFC 卡<small>选择要写入的门禁</small></div><span class="brand-tag">BAIYUN</span></div>
+        <div class="body">
+          <div class="dev-list">
+            <div class="mrow" style="border-color:rgba(138,99,232,.5);background:linear-gradient(180deg,#f6f2ff,#fff)">
+              <div class="top">
+                <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 21V5a2 2 0 012-2h7a2 2 0 012 2v16"/><path d="M3 21h18M13 12h.01"/></svg></div>
+                <div class="meta"><b>1栋大堂门 <span class="tag" style="color:var(--door);border-color:rgba(138,99,232,.4)">已选</span></b><small>BY-Lock-08 · C4:2F:90:AB:07:11</small></div>
+              </div>
+            </div>
+            <div class="mrow" style="opacity:.7">
+              <div class="top">
+                <div class="ic" style="background:#eef3f9;color:var(--muted)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 21V5a2 2 0 012-2h7a2 2 0 012 2v16"/><path d="M3 21h18M13 12h.01"/></svg></div>
+                <div class="meta"><b>地库3层门</b><small>BY-Gate-21 · A0:1B:44:2C:9E:60</small></div>
+              </div>
+            </div>
+          </div>
+          <div class="dock"><div class="alert door"><span class="i">i</span><span>将把「门名/MAC/Key/蓝牙名」写入空白 NDEF 卡</span></div><button class="btn door">下一步 · 贴卡写入</button></div>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="screen">
+      <div class="label"><span class="dot door"></span><span>贴卡写入中</span><em>W-02</em></div>
+      <div class="phone"><div class="screen-inner">
+        <div class="statusbar"><span>9:41</span><div class="sig"><i></i><i></i><i></i></div><div class="batt"><i></i></div></div>
+        <div class="appbar"><div class="ttl">写入门禁卡<small>请将空白卡贴住手机背面</small></div><span class="brand-tag">BAIYUN</span></div>
+        <div class="body">
+          <div class="nfc-stage">
+            <div class="nfc-orb write">
+              <div class="ring"></div><div class="ring"></div><div class="ring"></div>
+              <div class="core"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 8c4-3 12-3 16 0M6 12c3-2 9-2 12 0M9 16c1.5-1 4.5-1 6 0"/></svg></div>
+            </div>
+          </div>
+          <div style="text-align:center"><div class="lead">正在写入…</div><div class="desc-t">请勿移开卡片，正在写入 1栋大堂门 参数</div></div>
+          <div class="dock"><div class="alert warn"><span class="i">!</span><span>写入过程约 1-2 秒，中途移开可能导致写入不完整</span></div></div>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="screen">
+      <div class="label"><span class="dot ok"></span><span>写入成功</span><em>W-03</em></div>
+      <div class="phone"><div class="screen-inner">
+        <div class="statusbar"><span>9:41</span><div class="sig"><i></i><i></i><i></i></div><div class="batt"><i></i></div></div>
+        <div class="appbar"><div class="ttl">写入成功</div><span class="brand-tag">BAIYUN</span></div>
+        <div class="body">
+          <div style="text-align:center;padding:8px 0 10px">
+            <div class="status-ic ok" style="width:76px;height:76px;margin:0 auto 8px"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6"><path d="M5 13l4 4L19 7"/></svg></div>
+            <div class="lead" style="font-size:18px">已写入门禁卡</div>
+            <span class="badge-line ok" style="margin-top:6px">1栋大堂门 · 可碰卡开门</span>
+          </div>
+          <div class="result-card">
+            <div class="kv"><span class="k">门名</span><span class="v zh">1栋大堂门</span></div>
+            <div class="kv"><span class="k">蓝牙名</span><span class="v">BY-Lock-08</span></div>
+            <div class="kv"><span class="k">写入格式</span><span class="v">NDEF · MIME</span></div>
+          </div>
+          <div class="dock"><div class="alert info"><span class="i">i</span><span>此后碰这张卡即可冷启动唤起并自动开门</span></div><button class="btn primary">完成</button></div>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="screen">
+      <div class="label"><span class="dot err"></span><span>写入失败</span><em>W-04</em></div>
+      <div class="phone"><div class="screen-inner">
+        <div class="statusbar"><span>9:41</span><div class="sig"><i></i><i></i><i></i></div><div class="batt"><i></i></div></div>
+        <div class="appbar"><div class="back">‹</div><div class="ttl">写入失败</div><span class="brand-tag">BAIYUN</span></div>
+        <div class="body">
+          <div class="status-hero">
+            <div class="status-ic err"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6"><path d="M8 8l8 8M16 8l-8 8"/></svg></div>
+            <div class="lead">写入失败</div>
+            <div class="desc-t" style="max-width:230px">未能完成写入，可能是卡片只读、容量不足或中途移开</div>
+            <div class="alert warn" style="margin-top:16px;text-align:left"><span class="i">!</span><span>请确认为可写入的空白 NDEF 卡，贴稳后重试</span></div>
+          </div>
+          <div class="dock"><button class="btn door">重新写入</button><button class="btn ghost sm">更换卡片</button></div>
+        </div>
+      </div></div>
+    </div>
+
+  </div>
+  <div class="caption"><p><b>新增流程：</b>写卡入口接在蓝牙信息维护页内（M-01 每条 / M-02 保存后）。选择设备 → 贴卡写入 → 成功（成为门禁卡）/ 失败（重试或换卡）。</p></div>
+</section>
+
+<!-- ============ 图例 ============ -->
+<footer class="legend">
+  <h3>原型说明 · 状态图例</h3>
+  <div class="legend-grid">
+    <div class="li"><span class="sw" style="background:var(--nfc)"></span><div><b>NFC 链路</b><small>青色。碰卡读卡、写卡。</small></div></div>
+    <div class="li"><span class="sw" style="background:var(--bt)"></span><div><b>蓝牙链路</b><small>蓝色。BLE 扫描、连接握手。</small></div></div>
+    <div class="li"><span class="sw" style="background:var(--door)"></span><div><b>开门 / 配置</b><small>紫色。开门动作、设备维护与写卡。</small></div></div>
+    <div class="li"><span class="sw" style="background:var(--ok)"></span><div><b>成功态</b><small>绿色。读卡/写卡/开门成功（回执 00）。</small></div></div>
+    <div class="li"><span class="sw" style="background:var(--warn)"></span><div><b>提示 / 空态</b><small>橙色。权限、未开启、无设备。</small></div></div>
+    <div class="li"><span class="sw" style="background:var(--err)"></span><div><b>错误态</b><small>红色。读卡/写卡/开门失败。</small></div></div>
+  </div>
+</footer>
+<p class="disclaimer">// v2 迭代要点：① 权限组按 Android 12+ 免定位（neverForLocation）；② N-03 读卡成功改为读出 NDEF 四要素并自动连接开门；③ C 段补 DES 握手 + 开门回执（00 成功 / 02 已开）；④ 新增「蓝牙信息维护」(M) 与「NFC 写卡」(W) 两条流程并串接；⑤ 冷启动碰卡（NDEF 自定义 MIME intent-filter）。<br>// 字段值（MAC / Key / UUID / 帧格式 A5..5A / 回执码）均为占位或据「蓝牙门禁协议规格.md」示例，最终以 PRD 与仓库源文件核对为准 // 数据全本地、无后端</p>
+
+</body>
+</html>

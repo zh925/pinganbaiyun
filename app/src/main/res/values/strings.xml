@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">平安白云</string>
+    <string name="nfc_ready">已就绪：请碰卡开门，或进入维护页管理门禁</string>
+    <string name="nfc_unsupported">本机不支持 NFC，无法碰卡开门</string>
+    <string name="nfc_disabled">NFC 未开启，请在系统设置中开启</string>
+    <string name="nfc_card_read">读卡成功\n门名：%1$s\nMAC：%2$s\nKey：%3$s\n蓝牙名：%4$s</string>
+</resources>

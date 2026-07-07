@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- ============ NFC ============ -->
+    <uses-permission android:name="android.permission.NFC" />
+    <uses-feature
+        android:name="android.hardware.nfc"
+        android:required="true" />
+
+    <!-- ============ 蓝牙（Android 12+ 免定位）============ -->
+    <!-- 扫描仅用于连接已知 MAC 的门禁设备，声明 neverForLocation，不推断位置 -->
+    <uses-permission
+        android:name="android.permission.BLUETOOTH_SCAN"
+        android:usesPermissionFlags="neverForLocation"
+        tools:targetApi="s" />
+    <uses-permission
+        android:name="android.permission.BLUETOOTH_CONNECT"
+        tools:targetApi="s" />
+
+    <!-- 兼容 Android 11 及以下的旧蓝牙权限；定位权限仅在 <= Android 11 时才需要，此处不申请 -->
+    <uses-permission
+        android:name="android.permission.BLUETOOTH"
+        android:maxSdkVersion="30" />
+    <uses-permission
+        android:name="android.permission.BLUETOOTH_ADMIN"
+        android:maxSdkVersion="30" />
+
+    <uses-feature
+        android:name="android.hardware.bluetooth_le"
+        android:required="true" />
+
+    <application
+        android:name=".PinganApp"
+        android:allowBackup="false"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.PinganBaiyun">
+
+        <!--
+          NfcRouterActivity：碰卡冷启动落地页。
+          NDEF_DISCOVERED + 自定义 MIME 精确匹配，APP 未启动也能被系统直接唤起（不弹选择框）。
+          singleTask + onNewIntent 作为前台/后台统一入口。
+        -->
+        <activity
+            android:name=".ui.NfcRouterActivity"
+            android:exported="true"
+            android:launchMode="singleTask">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.nfc.action.NDEF_DISCOVERED" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="application/vnd.pinganbaiyun.door" />
+            </intent-filter>
+        </activity>
+
+    </application>
+</manifest>
