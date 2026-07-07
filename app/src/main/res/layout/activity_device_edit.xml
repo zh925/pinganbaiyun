@@ -127,7 +127,7 @@
         android:paddingTop="8dp"
         android:paddingBottom="18dp">
 
-        <Button
+        <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btnSaveWrite"
             style="@style/PinganButton"
             android:background="@drawable/bg_button_nfc"
@@ -135,7 +135,7 @@
             android:text="@string/edit_save_and_write"
             tools:ignore="ButtonStyle" />
 
-        <Button
+        <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btnSaveOnly"
             style="@style/PinganButton.Ghost"
             android:layout_marginTop="9dp"

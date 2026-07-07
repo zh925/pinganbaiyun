@@ -160,7 +160,7 @@
         android:paddingTop="8dp"
         android:paddingBottom="18dp">
 
-        <Button
+        <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/unlockBtnPrimary"
             style="@style/PinganButton"
             android:background="@drawable/bg_button_door"
@@ -169,7 +169,7 @@
             tools:text="立即连接开门"
             tools:ignore="ButtonStyle" />
 
-        <Button
+        <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/unlockBtnSecondary"
             style="@style/PinganButton.Ghost"
             android:layout_marginTop="9dp"

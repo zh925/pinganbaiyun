@@ -134,7 +134,7 @@
             android:lineSpacingMultiplier="1.4" />
     </LinearLayout>
 
-    <Button
+    <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/btnManualScan"
         style="@style/PinganButton.Ghost"
         android:layout_marginTop="10dp"

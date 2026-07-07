@@ -83,7 +83,7 @@
         android:layout_marginTop="11dp"
         android:baselineAligned="false">
 
-        <Button
+        <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/deviceWrite"
             android:layout_width="0dp"
             android:layout_height="34dp"
@@ -99,7 +99,7 @@
             android:stateListAnimator="@null"
             tools:ignore="ButtonStyle" />
 
-        <Button
+        <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/deviceEdit"
             android:layout_width="0dp"
             android:layout_height="34dp"

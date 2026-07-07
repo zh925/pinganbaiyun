@@ -168,14 +168,14 @@
                 android:lineSpacingMultiplier="1.4" />
         </LinearLayout>
 
-        <Button
+        <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/scanBtnPrimary"
             style="@style/PinganButton"
             android:background="@drawable/bg_button_bt"
             android:text="@string/scan_stop"
             tools:ignore="ButtonStyle" />
 
-        <Button
+        <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/scanBtnSecondary"
             style="@style/PinganButton.Ghost"
             android:layout_marginTop="9dp"

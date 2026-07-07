@@ -239,14 +239,14 @@
                 android:lineSpacingMultiplier="1.4" />
         </LinearLayout>
 
-        <Button
+        <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/writeBtnPrimary"
             style="@style/PinganButton"
             android:background="@drawable/bg_button_door"
             android:text="@string/write_next"
             tools:ignore="ButtonStyle" />
 
-        <Button
+        <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/writeBtnSecondary"
             style="@style/PinganButton.Ghost"
             android:layout_marginTop="9dp"

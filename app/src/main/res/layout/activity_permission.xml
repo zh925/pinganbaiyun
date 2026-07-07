@@ -74,7 +74,7 @@
         android:paddingTop="8dp"
         android:paddingBottom="18dp">
 
-        <Button
+        <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btnGrantAll"
             style="@style/PinganButton"
             android:background="@drawable/bg_button_brand"
@@ -82,7 +82,7 @@
             tools:ignore="ButtonStyle"
             xmlns:tools="http://schemas.android.com/tools" />
 
-        <Button
+        <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btnLater"
             style="@style/PinganButton.Ghost"
             android:layout_marginTop="9dp"

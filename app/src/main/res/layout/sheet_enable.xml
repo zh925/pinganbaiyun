@@ -69,14 +69,14 @@
         </LinearLayout>
     </LinearLayout>
 
-    <Button
+    <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/sheetBtnPrimary"
         style="@style/PinganButton"
         android:background="@drawable/bg_button_brand"
         tools:text="前往系统设置"
         tools:ignore="ButtonStyle" />
 
-    <Button
+    <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/sheetBtnSecondary"
         style="@style/PinganButton.Ghost"
         android:layout_marginTop="9dp"
