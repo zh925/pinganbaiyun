@@ -63,6 +63,115 @@
             android:paddingTop="14dp"
             android:paddingBottom="90dp"
             tools:listitem="@layout/item_device" />
+
+        <!-- 协议日志面板（开门诊断，可复制/分享/清空），默认折叠 -->
+        <LinearLayout
+            android:id="@+id/bleLogPanel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginHorizontal="18dp"
+            android:layout_marginBottom="90dp"
+            android:background="@drawable/bg_card"
+            android:padding="12dp"
+            android:visibility="gone"
+            tools:visibility="visible">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:baselineAligned="false">
+
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@drawable/ic_info"
+                    android:contentDescription="@null"
+                    app:tint="@color/muted" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="8dp"
+                    android:text="@string/ble_log_title"
+                    android:textColor="@color/brand_900"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/bleLogCopy"
+                    android:layout_width="wrap_content"
+                    android:layout_height="28dp"
+                    android:minWidth="0dp"
+                    android:paddingHorizontal="10dp"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
+                    android:text="@string/ble_log_copy"
+                    android:textColor="@color/brand_700"
+                    android:textSize="11sp"
+                    android:textAllCaps="false"
+                    android:background="@drawable/bg_button_ghost"
+                    android:stateListAnimator="@null"
+                    tools:ignore="ButtonStyle" />
+
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/bleLogShare"
+                    android:layout_width="wrap_content"
+                    android:layout_height="28dp"
+                    android:layout_marginStart="6dp"
+                    android:minWidth="0dp"
+                    android:paddingHorizontal="10dp"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
+                    android:text="@string/ble_log_share"
+                    android:textColor="@color/brand_700"
+                    android:textSize="11sp"
+                    android:textAllCaps="false"
+                    android:background="@drawable/bg_button_ghost"
+                    android:stateListAnimator="@null"
+                    tools:ignore="ButtonStyle" />
+
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/bleLogClear"
+                    android:layout_width="wrap_content"
+                    android:layout_height="28dp"
+                    android:layout_marginStart="6dp"
+                    android:minWidth="0dp"
+                    android:paddingHorizontal="10dp"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
+                    android:text="@string/ble_log_clear"
+                    android:textColor="@color/muted"
+                    android:textSize="11sp"
+                    android:textAllCaps="false"
+                    android:background="@drawable/bg_button_ghost"
+                    android:stateListAnimator="@null"
+                    tools:ignore="ButtonStyle" />
+            </LinearLayout>
+
+            <ScrollView
+                android:id="@+id/bleLogScroll"
+                android:layout_width="match_parent"
+                android:layout_height="220dp"
+                android:layout_marginTop="8dp"
+                android:background="@color/paper">
+
+                <TextView
+                    android:id="@+id/bleLogText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="10dp"
+                    android:fontFamily="monospace"
+                    android:textColor="@color/muted"
+                    android:textSize="10sp"
+                    android:textIsSelectable="true"
+                    android:lineSpacingMultiplier="1.25"
+                    tools:text="09:41:02.110 scan start…" />
+            </ScrollView>
+        </LinearLayout>
     </LinearLayout>
 
     <LinearLayout

@@ -18,9 +18,9 @@ import com.pinganbaiyun.app.core.protocol.OpenResult
 import com.pinganbaiyun.app.data.model.DoorConfig
 import com.pinganbaiyun.app.databinding.ActivityUnlockBinding
 import com.pinganbaiyun.app.databinding.ItemKvBinding
+import com.pinganbaiyun.app.ui.NfcRouterActivity
 import com.pinganbaiyun.app.ui.common.EnableSheets
 import com.pinganbaiyun.app.ui.devices.edit.DeviceEditActivity
-import com.pinganbaiyun.app.ui.scan.ScanActivity
 import com.pinganbaiyun.app.util.PermissionUtils
 
 /**
@@ -207,8 +207,8 @@ class UnlockActivity : AppCompatActivity() {
         } else {
             hidePrimary()
         }
-        setSecondary(getString(R.string.unlock_pick_other)) {
-            startActivity(Intent(this, ScanActivity::class.java)); finish()
+        setSecondary(getString(R.string.unlock_back_devices)) {
+            startActivity(NfcRouterActivity.devicesIntent(this)); finish()
         }
     }
 

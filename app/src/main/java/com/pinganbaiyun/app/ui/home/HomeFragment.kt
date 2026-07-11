@@ -10,7 +10,6 @@ import android.view.animation.AccelerateDecelerateInterpolator
 import androidx.fragment.app.Fragment
 import com.pinganbaiyun.app.R
 import com.pinganbaiyun.app.databinding.FragmentHomeBinding
-import com.pinganbaiyun.app.ui.scan.ScanActivity
 import com.pinganbaiyun.app.util.PermissionUtils
 
 /** 碰卡引导落地页（原型 N-01）。 */
@@ -30,9 +29,6 @@ class HomeFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        binding.btnManualScan.setOnClickListener {
-            startActivity(android.content.Intent(requireContext(), ScanActivity::class.java))
-        }
         startPulse()
     }
 

@@ -18,12 +18,21 @@
         android:name="android.permission.BLUETOOTH_CONNECT"
         tools:targetApi="s" />
 
-    <!-- 兼容 Android 11 及以下的旧蓝牙权限；定位权限仅在 <= Android 11 时才需要，此处不申请 -->
+    <!-- 兼容 Android 11 及以下的旧蓝牙权限 -->
     <uses-permission
         android:name="android.permission.BLUETOOTH"
         android:maxSdkVersion="30" />
     <uses-permission
         android:name="android.permission.BLUETOOTH_ADMIN"
+        android:maxSdkVersion="30" />
+
+    <!--
+      定位权限（仅 Android 8～11 需要）：这些版本 BLE 扫描必须授予 ACCESS_FINE_LOCATION
+      且定位开关开着，否则扫不到任何设备（minSdk=26 覆盖此区间）。Android 12+ 走
+      BLUETOOTH_SCAN(neverForLocation)，不再需要定位权限，故 maxSdkVersion=30。
+    -->
+    <uses-permission
+        android:name="android.permission.ACCESS_FINE_LOCATION"
         android:maxSdkVersion="30" />
 
     <uses-feature
@@ -74,11 +83,6 @@
             android:name=".ui.write.WriteCardActivity"
             android:exported="false"
             android:launchMode="singleTop" />
-
-        <!-- 手动扫描门禁（原型 B 段） -->
-        <activity
-            android:name=".ui.scan.ScanActivity"
-            android:exported="false" />
 
         <!-- 权限申请引导（原型 P-01） -->
         <activity

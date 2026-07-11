@@ -7,7 +7,7 @@ import com.pinganbaiyun.app.core.protocol.OpenResult
 /**
  * 门锁 notify 回执分类——纯函数，便于单测。移植自 `pages/index/index.js` 的 processBleNotification：
  *  - header = hex[0:2]，command = hex[4:6]，type = hex[18:20]，tail = 末 2 位。
- *  - command `04` 且总长 > 24 hex → 握手成功（门锁开始执行开门）；否则握手失败（含返回码）。
+ *  - command `04` 且总长 > 24 hex → 握手成功（门锁开始执行开门）；否则握手失败，返回码取 hex[14:18] 两字节互换。
  *  - type `87` 且 tail `5A` → 开门最终回执，交 [DoorProtocol.decodeOpenResult] 解析。
  */
 object NotificationParser {
@@ -34,11 +34,12 @@ object NotificationParser {
             return if (hex.length > 24) {
                 Notification.HandshakeSuccess(hex)
             } else {
-                // 状态字为倒数第 6..2 位的高低字节互换（对应 index.js statusWord 拼装）
-                val codeWord = if (hex.length >= 6) {
-                    val high = hex.substring(hex.length - 4, hex.length - 2)
-                    val low = hex.substring(hex.length - 6, hex.length - 4)
-                    "$high$low"
+                // 握手失败：状态字对齐参考主路径（index.js processBleNotification）——
+                // statusField = hex[14:18]，再两字节高低互换得 codeWord。
+                // 如 statusField="0B00" → codeWord="000B"（密钥/SN 不匹配等诊断码）。
+                val codeWord = if (hex.length >= 18) {
+                    val statusField = hex.substring(14, 18)
+                    "${statusField.substring(2, 4)}${statusField.substring(0, 2)}"
                 } else ""
                 Notification.HandshakeFailed(codeWord.uppercase())
             }

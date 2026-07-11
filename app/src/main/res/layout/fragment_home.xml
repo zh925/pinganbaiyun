@@ -133,11 +133,4 @@
             android:textSize="12.5sp"
             android:lineSpacingMultiplier="1.4" />
     </LinearLayout>
-
-    <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/btnManualScan"
-        style="@style/PinganButton.Ghost"
-        android:layout_marginTop="10dp"
-        android:text="@string/home_scan_entry"
-        tools:ignore="ButtonStyle" />
 </LinearLayout>

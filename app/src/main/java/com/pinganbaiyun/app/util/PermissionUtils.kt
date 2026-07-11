@@ -5,6 +5,7 @@ import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothManager
 import android.content.Context
 import android.content.pm.PackageManager
+import android.location.LocationManager
 import android.nfc.NfcAdapter
 import android.os.Build
 import androidx.core.content.ContextCompat
@@ -31,6 +32,34 @@ object PermissionUtils {
         requiredBlePermissions().all {
             ContextCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED
         }
+
+    /**
+     * Android 8～11（API 26..30）BLE 扫描所需的位置权限；Android 12+ 走
+     * `BLUETOOTH_SCAN`(neverForLocation)，不需要定位。
+     */
+    fun requiredLocationPermission(): Array<String> =
+        if (Build.VERSION.SDK_INT in Build.VERSION_CODES.O..Build.VERSION_CODES.R) {
+            arrayOf(Manifest.permission.ACCESS_FINE_LOCATION)
+        } else {
+            emptyArray()
+        }
+
+    /** Android 8～11 扫描 BLE 所需的位置权限是否已授予。 */
+    fun hasLocationPermission(context: Context): Boolean =
+        requiredLocationPermission().all {
+            ContextCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED
+        }
+
+    /**
+     * Android 8～11 BLE 扫描还需「定位开关」处于开启（与位置权限一并要求）。
+     * 任一定位 Provider（GPS/网络）开启即视为开。
+     */
+    fun isLocationEnabled(context: Context): Boolean {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) return true
+        val lm = context.getSystemService(Context.LOCATION_SERVICE) as? LocationManager ?: return false
+        return lm.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
+            lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+    }
 
     fun nfcAdapter(context: Context): NfcAdapter? = NfcAdapter.getDefaultAdapter(context)
 

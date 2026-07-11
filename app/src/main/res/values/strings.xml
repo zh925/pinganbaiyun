@@ -42,7 +42,6 @@
     <string name="home_lead">碰一碰开门</string>
     <string name="home_desc">将门禁卡靠近手机背部感应区</string>
     <string name="home_hint">碰卡后自动读出门禁参数并连接开门；未启动时也会被卡片唤起</string>
-    <string name="home_scan_entry">手动扫描门禁</string>
 
     <string name="nfc_unsupported">本机不支持 NFC，无法碰卡开门</string>
     <string name="nfc_reading_title">读取门禁卡</string>
@@ -67,23 +66,6 @@
     <string name="kv_bt_name">蓝牙名</string>
     <string name="kv_mac">MAC</string>
     <string name="kv_key">开锁 Key</string>
-
-    <!-- B 段 扫描 -->
-    <string name="scan_title">扫描附近门禁</string>
-    <string name="scan_sub">正在搜索 BLE 设备…</string>
-    <string name="scan_lead">正在扫描…</string>
-    <string name="scan_found_count">已发现 %1$d 个 BLE 设备</string>
-    <string name="scan_stop">停止扫描</string>
-    <string name="scan_pick_title">选择门禁</string>
-    <string name="scan_tag_matched">卡片匹配</string>
-    <string name="scan_hint_matched">「卡片匹配」为已保存门禁，优先自动连接</string>
-    <string name="scan_connect_open">连接并开门</string>
-    <string name="scan_empty_lead">未发现可用门禁</string>
-    <string name="scan_empty_desc">请确认目标门禁已通电、处于可被发现状态并在有效范围内</string>
-    <string name="scan_empty_hint">靠近设备后重新扫描，或检查是否已被其他手机占用连接</string>
-    <string name="scan_rescan">重新扫描</string>
-    <string name="scan_back_tap">返回碰卡</string>
-    <string name="scan_unsaved_hint">该设备未在「蓝牙信息」中保存，无法直接开门，请先录入四要素</string>
 
     <!-- C 段 连接开门 -->
     <string name="unlock_connect_title">连接门禁</string>
@@ -118,7 +100,7 @@
     <string name="unlock_fail_lead">开门失败</string>
     <string name="unlock_fail_hint">请靠近门禁后重试，或确认卡内 Key 与该门匹配</string>
     <string name="unlock_retry">重试开门</string>
-    <string name="unlock_pick_other">选择其他门禁</string>
+    <string name="unlock_back_devices">返回门禁列表</string>
     <string name="unlock_bt_needed">开门需要蓝牙权限，请先授予</string>
 
     <!-- M 段 蓝牙信息维护 -->
@@ -127,11 +109,25 @@
     <string name="devices_empty_lead">还没有门禁</string>
     <string name="devices_empty_desc">点击右下角 ＋ 新增门禁四要素，或从门禁配置抄录后写入 NFC 卡</string>
     <string name="devices_add">新增门禁</string>
+    <string name="device_open">开门</string>
+    <string name="device_opening">开门中…</string>
+    <string name="device_opened">已开</string>
+    <string name="device_open_retry">重试</string>
+    <string name="device_open_ok_hint">门已打开（回执 00）· 已震动提示，按钮短暂复位后回到「开门」</string>
     <string name="device_write_card">写入 NFC 卡</string>
     <string name="device_edit">编辑</string>
     <string name="device_delete">删除</string>
     <string name="device_delete_confirm_title">删除门禁</string>
     <string name="device_delete_confirm_msg">确定删除「%1$s」？此操作不可撤销。</string>
+
+    <!-- 协议日志面板（开门诊断） -->
+    <string name="ble_log_title">协议日志</string>
+    <string name="ble_log_copy">复制</string>
+    <string name="ble_log_share">分享</string>
+    <string name="ble_log_clear">清空</string>
+    <string name="ble_log_empty">暂无日志</string>
+    <string name="ble_log_copied">日志已复制到剪贴板</string>
+    <string name="ble_log_share_subject">平安白云 · 开门协议日志</string>
 
     <!-- M-02 表单 -->
     <string name="edit_title_new">新增门禁</string>

@@ -47,14 +47,25 @@ class NfcRouterActivity : AppCompatActivity() {
         if (savedInstanceState == null) {
             binding.bottomNav.selectedItemId = R.id.nav_tap
             val handled = handleNfcIntent(intent)
-            if (!handled) maybePromptPermissions()
+            if (!handled) {
+                if (!applySelectTab(intent)) maybePromptPermissions()
+            }
         }
     }
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
-        handleNfcIntent(intent)
+        if (!handleNfcIntent(intent)) applySelectTab(intent)
+    }
+
+    /** 处理「返回指定 Tab」的跳转（如开门失败后回到门禁列表）。 */
+    private fun applySelectTab(intent: Intent?): Boolean {
+        val tabId = intent?.getIntExtra(EXTRA_SELECT_TAB, 0) ?: 0
+        if (tabId == 0) return false
+        navigateToTab(tabId)
+        setIntent(Intent(this, NfcRouterActivity::class.java))
+        return true
     }
 
     override fun onResume() {
@@ -122,5 +133,12 @@ class NfcRouterActivity : AppCompatActivity() {
         private const val TAG_SETTINGS = "settings"
         private const val PREFS = "pinganbaiyun_ui"
         private const val KEY_PERM_PROMPTED = "perm_prompted"
+        private const val EXTRA_SELECT_TAB = "select_tab"
+
+        /** 打开宿主并切到「蓝牙信息」门禁列表 Tab。 */
+        fun devicesIntent(context: android.content.Context): Intent =
+            Intent(context, NfcRouterActivity::class.java)
+                .putExtra(EXTRA_SELECT_TAB, R.id.nav_devices)
+                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
     }
 }
