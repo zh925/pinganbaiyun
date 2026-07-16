@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="平安白云原型标记">
+  <rect width="64" height="64" rx="18" fill="#142d27"/>
+  <path d="M17 37.5c0-4.7 3.7-8.5 8.4-8.7A11 11 0 0 1 46 31.2a7.5 7.5 0 0 1 .5 15H24.8A7.8 7.8 0 0 1 17 38.4z" fill="#f4f1e9"/>
+  <path d="m31.8 16 9.8 4v7.2c0 7-4 11.2-9.8 14-5.8-2.8-9.8-7-9.8-14V20z" fill="#ee6d4a" stroke="#142d27" stroke-width="2"/>
+  <path d="M28.5 28.5 31 31l4.8-5" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
