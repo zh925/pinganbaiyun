@@ -26,7 +26,7 @@
 
 ## 协议表达边界
 
-- 原型不出现“扫描中”，因为已确认 ADR-001 选择已知 MAC 直连。
+- 原型不出现“扫描中”，因为按 ADR-001 待最终确认的推荐选项展示已知 MAC 直连。
 - 原型把 `onCharacteristicWrite(GATT_SUCCESS)` 表述为“指令已发送”，没有设备回执证据时不使用“开门成功”。
 - 原型不会呈现 key、seed、DES 密文或完整可重放帧；演示 MAC 也做了局部掩码。
 - `SafeBaiyun` 20 字节帧、Service/Characteristic、DES 与异步 GATT 细节仅由 Stage 1 文档定义，原型不新增协议结论。
