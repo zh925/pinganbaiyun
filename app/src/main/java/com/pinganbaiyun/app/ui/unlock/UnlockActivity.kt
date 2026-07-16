@@ -13,6 +13,7 @@ import androidx.annotation.DrawableRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.pinganbaiyun.app.R
+import com.pinganbaiyun.app.core.ble.UnlockError
 import com.pinganbaiyun.app.core.ble.UnlockState
 import com.pinganbaiyun.app.core.protocol.OpenResult
 import com.pinganbaiyun.app.data.model.DoorConfig
@@ -34,6 +35,7 @@ class UnlockActivity : AppCompatActivity() {
 
     private var config: DoorConfig? = null
     private var started = false
+    private var autoRetried = false
 
     private val permsLauncher =
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { result ->
@@ -95,7 +97,10 @@ class UnlockActivity : AppCompatActivity() {
     }
 
     private fun proceedStart() {
-        config?.let { viewModel.start(it) }
+        config?.let {
+            autoRetried = false
+            viewModel.start(it)
+        }
     }
 
     private fun notifyBluetoothPermMissing() {
@@ -113,8 +118,19 @@ class UnlockActivity : AppCompatActivity() {
             UnlockState.PreparingChannel, UnlockState.ReadingSeed -> renderConnecting(handshaking = true)
             UnlockState.Opening -> renderOpening()
             is UnlockState.Success -> renderSuccess(state.result)
-            is UnlockState.Failed -> renderFailed(state.reason)
+            is UnlockState.Failed -> onUnlockFailed(state.reason, state.error)
         }
+    }
+
+    private fun onUnlockFailed(reason: String, error: UnlockError) {
+        val cfg = config
+        if (cfg != null && error in TRANSIENT_ERRORS && !autoRetried) {
+            autoRetried = true
+            viewModel.start(cfg)
+            return
+        }
+        Toast.makeText(this, reason, Toast.LENGTH_LONG).show()
+        renderFailed(reason)
     }
 
     private fun renderReadOk(cfg: DoorConfig) {
@@ -202,7 +218,9 @@ class UnlockActivity : AppCompatActivity() {
         setAlert(getString(R.string.unlock_fail_hint), AlertStyle.WARN)
         if (config != null) {
             setPrimary(getString(R.string.unlock_retry), R.drawable.bg_button_door) {
-                clearCard(); viewModel.start(config!!)
+                clearCard()
+                autoRetried = false
+                viewModel.start(config!!)
             }
         } else {
             hidePrimary()
@@ -351,6 +369,10 @@ class UnlockActivity : AppCompatActivity() {
     }
 
     companion object {
+        private val TRANSIENT_ERRORS = setOf(
+            UnlockError.CONNECT_FAILED,
+            UnlockError.SCAN_TIMEOUT,
+        )
         private const val EXTRA_MODE = "mode"
         private const val MODE_READ_FAIL = "read_fail"
         private const val EXTRA_FROM_NFC = "from_nfc"

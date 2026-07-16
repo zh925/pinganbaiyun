@@ -92,6 +92,7 @@ class DevicesFragment : Fragment() {
 
         adapter = DeviceAdapter(
             onOpen = { onOpenClicked(it) },
+            onDefault = { config, isDefault -> confirmDefaultChange(config, isDefault) },
             onWrite = { openWrite(it) },
             onEdit = { openEdit(it) },
             onDelete = { confirmDelete(it) },
@@ -117,7 +118,7 @@ class DevicesFragment : Fragment() {
 
     private fun refresh() {
         val list = viewModel.list()
-        adapter.submit(list)
+        adapter.submit(list, viewModel.defaultId())
         binding.devicesSubtitle.text = getString(R.string.devices_subtitle_count, list.size)
         val empty = list.isEmpty()
         binding.devicesEmpty.visibility = if (empty) View.VISIBLE else View.GONE
@@ -166,6 +167,7 @@ class DevicesFragment : Fragment() {
         val config = pendingConfig ?: return
         pendingConfig = null
         adapter.setOpenState(config.id, DeviceAdapter.OpenState.Failed(reason))
+        Toast.makeText(requireContext(), reason, Toast.LENGTH_LONG).show()
     }
 
     private fun onUnlockState(state: UnlockState) {
@@ -189,10 +191,22 @@ class DevicesFragment : Fragment() {
         openingConfig = null
         adapter.setOpenState(config.id, DeviceAdapter.OpenState.Success)
         binding.devicesList.performHapticFeedback(HapticFeedbackConstants.CONFIRM)
+        maybeShowDefaultGuide(config)
         // 成功后按钮短暂保持「已开」（禁用态即冷却窗口），随后复位回「开门」
         handler.postDelayed({
             if (_binding != null) adapter.setOpenState(config.id, DeviceAdapter.OpenState.Idle)
         }, SUCCESS_RESET_MS)
+    }
+
+    private fun maybeShowDefaultGuide(config: DoorConfig) {
+        if (viewModel.defaultId() != null || !viewModel.shouldShowDefaultGuide()) return
+        viewModel.markDefaultGuideShown()
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle(R.string.device_default_guide_title)
+            .setMessage(getString(R.string.device_default_guide_msg, config.doorName))
+            .setNegativeButton(R.string.device_default_guide_later, null)
+            .setPositiveButton(R.string.device_set_default_action) { _, _ -> setDefault(config) }
+            .show()
     }
 
     private fun onOpenFailed(config: DoorConfig, reason: String, error: UnlockError) {
@@ -205,6 +219,7 @@ class DevicesFragment : Fragment() {
         bleManager.stop()
         openingConfig = null
         adapter.setOpenState(config.id, DeviceAdapter.OpenState.Failed(reason))
+        Toast.makeText(requireContext(), reason, Toast.LENGTH_LONG).show()
     }
 
     // ---------------- 其它维护操作 ----------------
@@ -217,10 +232,59 @@ class DevicesFragment : Fragment() {
         startActivity(WriteCardActivity.intent(requireContext(), config.id))
     }
 
+    private fun confirmDefaultChange(config: DoorConfig, isDefault: Boolean) {
+        val current = viewModel.defaultId()?.let(viewModel::get)
+        when {
+            isDefault -> MaterialAlertDialogBuilder(requireContext())
+                .setTitle(R.string.device_cancel_default_title)
+                .setMessage(getString(R.string.device_cancel_default_msg, config.doorName))
+                .setNegativeButton(R.string.action_cancel, null)
+                .setPositiveButton(R.string.device_cancel_default) { _, _ ->
+                    viewModel.setDefault(null)
+                    refresh()
+                    Toast.makeText(requireContext(), R.string.device_default_cancelled, Toast.LENGTH_SHORT).show()
+                }
+                .show()
+            current != null -> MaterialAlertDialogBuilder(requireContext())
+                .setTitle(R.string.device_replace_default_title)
+                .setMessage(getString(R.string.device_replace_default_msg, current.doorName, config.doorName))
+                .setNegativeButton(R.string.action_cancel, null)
+                .setPositiveButton(R.string.device_replace_default_action) { _, _ ->
+                    setDefault(config)
+                }
+                .show()
+            else -> MaterialAlertDialogBuilder(requireContext())
+                .setTitle(R.string.device_set_default_title)
+                .setMessage(getString(R.string.device_set_default_msg, config.doorName))
+                .setNegativeButton(R.string.action_cancel, null)
+                .setPositiveButton(R.string.device_set_default_action) { _, _ ->
+                    setDefault(config)
+                }
+                .show()
+        }
+    }
+
+    private fun setDefault(config: DoorConfig) {
+        viewModel.setDefault(config.id)
+        refresh()
+        Toast.makeText(
+            requireContext(),
+            getString(R.string.device_default_set, config.doorName),
+            Toast.LENGTH_SHORT,
+        ).show()
+    }
+
     private fun confirmDelete(config: DoorConfig) {
+        val isDefault = viewModel.defaultId() == config.id
         MaterialAlertDialogBuilder(requireContext())
             .setTitle(R.string.device_delete_confirm_title)
-            .setMessage(getString(R.string.device_delete_confirm_msg, config.doorName))
+            .setMessage(
+                getString(
+                    if (isDefault) R.string.device_delete_default_confirm_msg
+                    else R.string.device_delete_confirm_msg,
+                    config.doorName,
+                ),
+            )
             .setNegativeButton(R.string.action_cancel, null)
             .setPositiveButton(R.string.device_delete) { _, _ ->
                 viewModel.delete(config.id)

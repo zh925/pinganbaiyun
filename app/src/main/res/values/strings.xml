@@ -85,16 +85,16 @@
     <string name="unlock_state_done">完成 ✓</string>
     <string name="unlock_state_connected">已连接 ✓</string>
 
-    <string name="unlock_ok_title">开门成功</string>
-    <string name="unlock_ok_lead">门已打开</string>
-    <string name="unlock_ok_badge_00">回执 00 · 开门成功</string>
-    <string name="unlock_ok_desc">%1$s 已为你开启，请通行</string>
-    <string name="unlock_ok_hint">本次连接可保持数秒以便再次开门，随后自动断开</string>
+    <string name="unlock_ok_title">指令已执行</string>
+    <string name="unlock_ok_lead">开门指令已执行</string>
+    <string name="unlock_ok_badge_00">门禁已响应</string>
+    <string name="unlock_ok_desc">已向 %1$s 执行开门指令</string>
+    <string name="unlock_ok_hint">请留意门禁实际状态；本次连接随后会自动断开</string>
 
-    <string name="unlock_already_title">门已开启</string>
-    <string name="unlock_already_lead">门已处于开启状态</string>
-    <string name="unlock_already_badge_02">回执 02 · 门已开</string>
-    <string name="unlock_already_desc">门禁反馈当前已开启，无需重复开门，可直接通行</string>
+    <string name="unlock_already_title">指令已执行</string>
+    <string name="unlock_already_lead">开门指令已执行</string>
+    <string name="unlock_already_badge_02">门禁已响应</string>
+    <string name="unlock_already_desc">门禁已返回响应，请留意实际状态</string>
 
     <string name="unlock_fail_title">开门失败</string>
     <string name="unlock_fail_lead">开门失败</string>
@@ -111,14 +111,31 @@
     <string name="devices_add">新增门禁</string>
     <string name="device_open">开门</string>
     <string name="device_opening">开门中…</string>
-    <string name="device_opened">已开</string>
+    <string name="device_opened">已执行</string>
     <string name="device_open_retry">重试</string>
-    <string name="device_open_ok_hint">门已打开（回执 00）· 已震动提示，按钮短暂复位后回到「开门」</string>
+    <string name="device_open_ok_hint">开门指令已执行 · 请留意门禁实际状态</string>
+    <string name="device_default_badge">默认 · 启动自动开门</string>
+    <string name="device_set_default">设为默认</string>
+    <string name="device_cancel_default">取消默认</string>
+    <string name="device_set_default_title">设为默认门禁</string>
+    <string name="device_set_default_msg">设为「%1$s」后，打开或回到 APP 时会自动尝试开门。</string>
+    <string name="device_set_default_action">设为默认</string>
+    <string name="device_replace_default_title">更换默认门禁</string>
+    <string name="device_replace_default_msg">默认门禁将从「%1$s」更换为「%2$s」。打开或回到 APP 时会自动尝试新门禁。</string>
+    <string name="device_replace_default_action">确认更换</string>
+    <string name="device_cancel_default_title">取消默认门禁</string>
+    <string name="device_cancel_default_msg">取消「%1$s」的默认设置后，打开或回到 APP 时将不再自动开门。</string>
+    <string name="device_default_set">已将「%1$s」设为默认门禁</string>
+    <string name="device_default_cancelled">已取消默认门禁</string>
+    <string name="device_default_guide_title">下次打开自动开门</string>
+    <string name="device_default_guide_msg">是否将刚刚使用的「%1$s」设为默认门禁？你可以随时在蓝牙信息中更改。</string>
+    <string name="device_default_guide_later">暂不</string>
     <string name="device_write_card">写入 NFC 卡</string>
     <string name="device_edit">编辑</string>
     <string name="device_delete">删除</string>
     <string name="device_delete_confirm_title">删除门禁</string>
     <string name="device_delete_confirm_msg">确定删除「%1$s」？此操作不可撤销。</string>
+    <string name="device_delete_default_confirm_msg">「%1$s」是当前默认门禁。删除后将同时取消默认设置，且不会自动改选其他门禁。</string>
 
     <!-- 协议日志面板（开门诊断） -->
     <string name="ble_log_title">协议日志</string>

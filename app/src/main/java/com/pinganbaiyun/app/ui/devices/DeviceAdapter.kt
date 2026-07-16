@@ -17,6 +17,7 @@ import com.pinganbaiyun.app.databinding.ItemDeviceBinding
  */
 class DeviceAdapter(
     private val onOpen: (DoorConfig) -> Unit,
+    private val onDefault: (DoorConfig, Boolean) -> Unit,
     private val onWrite: (DoorConfig) -> Unit,
     private val onEdit: (DoorConfig) -> Unit,
     private val onDelete: (DoorConfig) -> Unit,
@@ -32,10 +33,12 @@ class DeviceAdapter(
 
     private val items = mutableListOf<DoorConfig>()
     private val openStates = mutableMapOf<String, OpenState>()
+    private var defaultId: String? = null
 
-    fun submit(list: List<DoorConfig>) {
+    fun submit(list: List<DoorConfig>, defaultId: String?) {
         items.clear()
         items.addAll(list)
+        this.defaultId = defaultId
         // 清理已不存在门禁的残留状态
         openStates.keys.retainAll(items.map { it.id }.toSet())
         notifyDataSetChanged()
@@ -67,6 +70,12 @@ class DeviceAdapter(
             binding.deviceEdit.setOnClickListener { onEdit(config) }
             binding.deviceDelete.setOnClickListener { onDelete(config) }
             binding.deviceOpen.setOnClickListener { onOpen(config) }
+            val isDefault = config.id == defaultId
+            binding.deviceDefaultBadge.visibility = if (isDefault) View.VISIBLE else View.GONE
+            binding.deviceDefault.setText(
+                if (isDefault) R.string.device_cancel_default else R.string.device_set_default,
+            )
+            binding.deviceDefault.setOnClickListener { onDefault(config, isDefault) }
             renderOpen(config, openStates[config.id] ?: OpenState.Idle)
         }
 
