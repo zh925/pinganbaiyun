@@ -16,16 +16,22 @@ const toast = document.querySelector('#toast');
 
 const icons = { empty: '⌁', error: '!', timeout: '⌛', permission: '◇', bluetooth: 'ᛒ', corrupt: '⚠' };
 
+function escapeHtml(value) {
+  return String(value).replace(/[&<>"']/g, character => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'
+  })[character]);
+}
+
 function doorCard(door) {
   return `<article class="door-card ${door.isDefault ? 'default' : ''}" data-id="${door.id}">
     <div class="card-top">
       <div class="door-glyph" aria-hidden="true"></div>
-      <div class="door-info"><h3>${door.name}</h3><p>${door.mac}</p></div>
+      <div class="door-info"><h3>${escapeHtml(door.name)}</h3><p>${escapeHtml(door.mac)}</p></div>
       ${door.isDefault ? '<span class="badge">默认</span>' : ''}
     </div>
     <div class="card-actions">
       <button class="unlock-button" data-unlock="${door.id}">开门</button>
-      <button class="more-button" data-menu="${door.id}" aria-label="管理 ${door.name}">•••</button>
+      <button class="more-button" data-menu="${door.id}" aria-label="管理 ${escapeHtml(door.name)}">•••</button>
     </div>
   </article>`;
 }
@@ -49,7 +55,7 @@ function progressView() {
   return `<section class="task-panel">
     <div class="task-target"><div class="pulse-ring">▥</div><div><p class="eyebrow">${activeTask ? '手动开门' : '冷启动 · 自动一次'}</p><h3>北门 · 云庭</h3><p>A4:C1:38:••:7B:10</p></div></div>
     <div class="progress-list">${order.map((key,i) => `<div class="progress-step ${i < index ? 'done' : i === index ? 'active' : ''}"><span class="step-mark">${i < index ? '✓' : i+1}</span><b>${labels[key][0]}</b><small>${i < index ? '完成' : i === index ? labels[key][1] : '等待'}</small></div>`).join('')}</div>
-    <p class="task-note">正在执行的门禁任务全局唯一。回到前台或连续点击不会创建第二个任务。</p>
+    <p class="task-note">正在执行的门禁任务全局唯一，并使用启动时的配置快照。回到前台或连续点击不会创建第二个任务。</p>
     <div class="task-actions"><button class="secondary-button" data-action="background">模拟前后台</button><button class="danger-button" data-action="cancel">取消开门</button></div>
   </section>`;
 }
@@ -85,15 +91,15 @@ function formModal(door) {
   const editing = Boolean(door);
   openModal(`<h3 id="modal-title">${editing ? '编辑门禁' : '新增门禁'}</h3><p class="helper">凭据仅用于本机直连，保存时会规范化并加密。密钥不会直接显示或复制。</p>
     <form id="door-form" data-editing="${door?.id || ''}">
-      <div class="form-field"><label>门禁名称</label><input name="name" maxlength="80" value="${door?.name || ''}" placeholder="例如：北门 · 云庭"><p class="field-error" data-error="name"></p></div>
-      <div class="form-field"><label>蓝牙 MAC 地址</label><input name="mac" value="${door?.rawMac || ''}" placeholder="A4:C1:38:2F:7B:10"><p class="field-error" data-error="mac"></p></div>
-      <div class="form-field"><label>门禁密钥 · 16 位 HEX</label><input name="key" type="password" value="${door?.key || ''}" placeholder="••••••••••••••••"><p class="field-error" data-error="key"></p></div>
+      <div class="form-field"><label>门禁名称</label><input name="name" maxlength="80" value="${escapeHtml(door?.name || '')}" placeholder="例如：北门 · 云庭"><p class="field-error" data-error="name"></p></div>
+      <div class="form-field"><label>蓝牙 MAC 地址</label><input name="mac" value="${escapeHtml(door?.rawMac || '')}" placeholder="A4:C1:38:2F:7B:10"><p class="field-error" data-error="mac"></p></div>
+      <div class="form-field"><label>门禁密钥 · 16 位 HEX</label><input name="key" type="password" value="${escapeHtml(door?.key || '')}" placeholder="••••••••••••••••"><p class="field-error" data-error="key"></p></div>
       <div class="modal-actions"><button type="button" class="secondary-button" data-close>取消</button><button class="primary-button">保存</button></div>
     </form>`);
 }
 
 function menuModal(door) {
-  openModal(`<h3 id="modal-title">管理门禁</h3><p class="helper">${door.name}<br>${door.mac}</p><div class="menu-list">
+  openModal(`<h3 id="modal-title">管理门禁</h3><p class="helper">${escapeHtml(door.name)}<br>${escapeHtml(door.mac)}</p><div class="menu-list">
     <button data-menu-action="edit" data-id="${door.id}">编辑资料</button>
     <button data-menu-action="default" data-id="${door.id}">${door.isDefault ? '取消默认门禁' : '设为默认门禁'}</button>
     <button class="destructive" data-menu-action="delete" data-id="${door.id}">删除门禁</button>
@@ -102,7 +108,7 @@ function menuModal(door) {
 }
 
 function confirmDelete(door) {
-  openModal(`<h3 id="modal-title">删除“${door.name}”？</h3><p class="helper">${door.isDefault ? '这也是当前默认门禁。删除后会同时取消默认，且不会自动选择其他门禁。' : '删除后，本机将无法再使用这项配置开门。'}</p><div class="modal-actions"><button class="secondary-button" data-close>取消</button><button class="danger-button" data-confirm-delete="${door.id}">确认删除</button></div>`);
+  openModal(`<h3 id="modal-title">删除“${escapeHtml(door.name)}”？</h3><p class="helper">${door.isDefault ? '这也是当前默认门禁。删除后会同时取消默认，且不会自动选择其他门禁。' : '删除后，本机将无法再使用这项配置开门。'}</p><div class="modal-actions"><button class="secondary-button" data-close>取消</button><button class="danger-button" data-confirm-delete="${door.id}">确认删除</button></div>`);
 }
 
 document.addEventListener('click', (event) => {
