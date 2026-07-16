@@ -5,7 +5,7 @@
 - 父 Issue：RUO-4
 - 负责人：需求组 / 业务分析师（RUO-5）
 - 状态：草稿
-- 确认 PR：待创建
+- 确认 PR：https://github.com/zh925/pinganbaiyun/pull/1（待用户确认）
 - 确认 commit：待用户确认
 
 ## 背景与目标
