@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f4f1e9">
+  <title>平安白云 · 离线门禁交互原型</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="prototype-shell">
+    <aside class="studio-panel" aria-label="原型说明">
+      <div class="studio-brand">
+        <img src="assets/brand-mark.svg" alt="">
+        <div><b>平安白云</b><span>RUO-4 · INTERACTION STUDY</span></div>
+      </div>
+      <div class="studio-copy">
+        <p class="eyebrow">OFFLINE ACCESS / 01</p>
+        <h1>一次明确的触发，<br>一次可见的结果。</h1>
+        <p>面向物理门禁的克制交互：不把传输成功误写成“门已打开”，不在回到前台时偷偷重试。</p>
+      </div>
+      <div class="flow-rail" aria-label="开门阶段">
+        <button data-scene="progress" data-stage="connect"><span>01</span>连接设备</button>
+        <button data-scene="progress" data-stage="read"><span>02</span>读取种子</button>
+        <button data-scene="progress" data-stage="send"><span>03</span>发送指令</button>
+        <button data-scene="success"><span>04</span>确认结果</button>
+      </div>
+      <p class="studio-foot">所有数据仅保存在设备本地 · 原型使用演示数据</p>
+    </aside>
+
+    <section class="device-stage" aria-label="移动端原型">
+      <div class="scene-toolbar" aria-label="原型场景切换">
+        <label for="scene-select">场景</label>
+        <select id="scene-select">
+          <option value="list">门禁列表</option>
+          <option value="loading">加载</option>
+          <option value="empty">空状态</option>
+          <option value="progress">开门中</option>
+          <option value="success">指令已发送</option>
+          <option value="error">设备不可达</option>
+          <option value="timeout">连接超时</option>
+          <option value="protocol">协议失败</option>
+          <option value="permission">权限缺失</option>
+          <option value="bluetooth">蓝牙关闭</option>
+          <option value="corrupt">数据不可读取</option>
+        </select>
+        <button id="cold-start" class="toolbar-action">模拟冷启动</button>
+      </div>
+
+      <div class="phone" id="phone">
+        <div class="status-bar"><span>09:41</span><span>● ● ︿ 100%</span></div>
+        <section class="app" aria-live="polite">
+          <header class="app-header">
+            <div>
+              <p class="eyebrow">本机 · 离线可用</p>
+              <h2>我的门禁</h2>
+            </div>
+            <button class="icon-button" id="add-door" aria-label="新增门禁">＋</button>
+          </header>
+
+          <div class="privacy-strip"><span class="status-dot"></span>门禁凭据已加密保存在本机</div>
+          <div id="screen"></div>
+          <nav class="bottom-nav" aria-label="主导航">
+            <button class="active"><span>▥</span>门禁</button>
+            <button id="help-button"><span>?</span>说明</button>
+          </nav>
+        </section>
+        <div class="home-indicator"></div>
+      </div>
+    </section>
+  </main>
+
+  <div class="toast" id="toast" role="status"></div>
+  <div class="modal-backdrop" id="modal" hidden>
+    <section class="modal-sheet" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <div class="modal-grip"></div>
+      <div id="modal-content"></div>
+    </section>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>
