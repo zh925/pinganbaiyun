@@ -25,13 +25,23 @@ class UnlockCoordinatorTest {
     }
 
     @Test fun `each stage has a finite timeout and releases transport`() {
-        val transport = FakeTransport()
-        val scheduler = FakeScheduler()
-        val coordinator = UnlockCoordinator({ transport }, scheduler, stageTimeoutMillis = 1)
-        coordinator.start(door("a"), UnlockOrigin.MANUAL)
-        scheduler.runLatest()
-        assertEquals(UnlockStage.TIMED_OUT, coordinator.task?.stage)
-        assertEquals(1, transport.cancelCount)
+        listOf(
+            UnlockStage.CONNECTING,
+            UnlockStage.DISCOVERING_SERVICES,
+            UnlockStage.PREPARING_CHANNEL,
+            UnlockStage.READING_SEED,
+            UnlockStage.SENDING_COMMAND,
+        ).forEach { stage ->
+            val transport = FakeTransport()
+            val scheduler = FakeScheduler()
+            val coordinator = UnlockCoordinator({ transport }, scheduler, stageTimeoutMillis = 1)
+            coordinator.start(door("a"), UnlockOrigin.MANUAL)
+            transport.listener.onStage(stage)
+            assertTrue("$stage must reset timeout", scheduler.scheduledCount >= 2)
+            scheduler.runLatest()
+            assertEquals(stage.name, UnlockStage.TIMED_OUT, coordinator.task?.stage)
+            assertEquals(stage.name, 1, transport.cancelCount)
+        }
     }
 
     @Test fun `write success uses neutral sent state`() {
@@ -55,6 +65,7 @@ class UnlockCoordinatorTest {
     private class FakeScheduler : TaskScheduler {
         private data class Entry(var cancelled: Boolean, val block: () -> Unit)
         private val entries = mutableListOf<Entry>()
+        val scheduledCount get() = entries.size
         override fun schedule(delayMillis: Long, block: () -> Unit): CancelHandle {
             val entry = Entry(false, block)
             entries += entry

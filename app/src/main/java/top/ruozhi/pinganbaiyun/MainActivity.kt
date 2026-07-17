@@ -28,6 +28,8 @@ import top.ruozhi.pinganbaiyun.model.DoorValidation
 import top.ruozhi.pinganbaiyun.model.LoadResult
 import top.ruozhi.pinganbaiyun.unlock.CancelHandle
 import top.ruozhi.pinganbaiyun.unlock.UnlockOrigin
+import top.ruozhi.pinganbaiyun.unlock.UnlockFlowAction
+import top.ruozhi.pinganbaiyun.unlock.UnlockPrecondition
 import top.ruozhi.pinganbaiyun.unlock.UnlockTask
 import java.util.UUID
 
@@ -48,17 +50,20 @@ class MainActivity : Activity() {
         render(app.coordinator.task)
 
         val launcherColdStart = savedInstanceState == null && intent.action == Intent.ACTION_MAIN &&
-            intent.hasCategory(Intent.CATEGORY_LAUNCHER) && app.consumeColdStart()
-        if (launcherColdStart) {
-            ((app.repository.load() as? LoadResult.Success)?.snapshot?.defaultDoor)?.let {
-                requestUnlock(it, UnlockOrigin.COLD_START)
-            }
+            intent.hasCategory(Intent.CATEGORY_LAUNCHER)
+        val defaultDoor = (app.repository.load() as? LoadResult.Success)?.snapshot?.defaultDoor
+        val coldStartAction = app.unlockFlow.coldStart(defaultDoor, launcherColdStart, precondition())
+        handleFlow(coldStartAction)
+        if (coldStartAction == UnlockFlowAction.NoAction && app.unlockFlow.pending != null) {
+            handleFlow(app.unlockFlow.resume(precondition()))
         }
     }
 
     override fun onResume() {
         super.onResume()
-        if (app.pendingUnlock != null && hasConnectPermission() && bluetoothEnabled()) continuePendingUnlock()
+        if (app.unlockFlow.pending != null && precondition() == UnlockPrecondition.READY) {
+            handleFlow(app.unlockFlow.resume(UnlockPrecondition.READY))
+        }
     }
 
     override fun onDestroy() {
@@ -69,9 +74,9 @@ class MainActivity : Activity() {
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, results: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, results)
         if (requestCode != REQUEST_CONNECT) return
-        if (results.firstOrNull() == PackageManager.PERMISSION_GRANTED) ensureBluetoothThenContinue()
+        if (results.firstOrNull() == PackageManager.PERMISSION_GRANTED) handleFlow(app.unlockFlow.resume(precondition()))
         else {
-            app.pendingUnlock = null
+            app.unlockFlow.cancelPending()
             AlertDialog.Builder(this)
                 .setTitle("需要附近设备权限")
                 .setMessage("未授权时不会连接或发送指令。若已永久拒绝，请前往系统设置授权。")
@@ -88,7 +93,7 @@ class MainActivity : Activity() {
         if (requestCode == REQUEST_ENABLE) {
             if (bluetoothEnabled()) continuePendingUnlock()
             else {
-                app.pendingUnlock = null
+                app.unlockFlow.cancelPending()
                 toast("蓝牙未开启，已终止本次操作")
             }
         }
@@ -159,8 +164,7 @@ class MainActivity : Activity() {
         }) else if (task.stage != top.ruozhi.pinganbaiyun.unlock.UnlockStage.SENT) box.addView(Button(this).apply {
             text = "重试"
             setOnClickListener {
-                val latest = (app.repository.load() as? LoadResult.Success)?.snapshot?.doors?.firstOrNull { it.id == task.door.id }
-                if (latest == null) toast("门禁已删除，请返回列表") else requestUnlock(latest, UnlockOrigin.RETRY)
+                handleFlow(app.unlockFlow.retry(task.door.id, precondition()))
             }
         })
         content.addView(box, marginParams(bottom = 16))
@@ -238,21 +242,11 @@ class MainActivity : Activity() {
 
     private fun requestUnlock(door: DoorConfig, origin: UnlockOrigin) {
         val active = app.coordinator.task?.takeUnless { it.stage.terminal }
-        if (active != null || app.pendingUnlock != null) {
-            toast("${active?.door?.doorName ?: app.pendingUnlock?.door?.doorName}正在进行开门操作")
+        if (active != null || app.unlockFlow.pending != null) {
+            toast("${active?.door?.doorName ?: app.unlockFlow.pending?.door?.doorName}正在进行开门操作")
             return
         }
-        app.pendingUnlock = PingAnBaiYunApp.PendingUnlock(door.copy(), origin)
-        if (!packageManager.hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
-            app.pendingUnlock = null
-            toast("此设备不支持低功耗蓝牙")
-            return
-        }
-        if (!hasConnectPermission()) {
-            if (Build.VERSION.SDK_INT >= 31) requestPermissions(arrayOf(Manifest.permission.BLUETOOTH_CONNECT), REQUEST_CONNECT)
-            return
-        }
-        ensureBluetoothThenContinue()
+        handleFlow(app.unlockFlow.request(door, origin, precondition()))
     }
 
     @SuppressLint("MissingPermission")
@@ -263,17 +257,34 @@ class MainActivity : Activity() {
                 @Suppress("DEPRECATION")
                 startActivityForResult(Intent(android.bluetooth.BluetoothAdapter.ACTION_REQUEST_ENABLE), REQUEST_ENABLE)
             } catch (_: SecurityException) {
-                app.pendingUnlock = null
+                app.unlockFlow.cancelPending()
                 toast("附近设备权限已撤回")
             }
         }
     }
 
     private fun continuePendingUnlock() {
-        val pending = app.pendingUnlock ?: return
-        app.pendingUnlock = null
-        app.coordinator.start(pending.door, pending.origin)
-            .onFailure { toast(it.message ?: "无法开始开门") }
+        handleFlow(app.unlockFlow.resume(precondition()))
+    }
+
+    private fun handleFlow(action: UnlockFlowAction) {
+        when (action) {
+            UnlockFlowAction.NoAction, is UnlockFlowAction.Started -> Unit
+            UnlockFlowAction.NeedPermission -> if (Build.VERSION.SDK_INT >= 31) {
+                requestPermissions(arrayOf(Manifest.permission.BLUETOOTH_CONNECT), REQUEST_CONNECT)
+            }
+            UnlockFlowAction.NeedBluetooth -> ensureBluetoothThenContinue()
+            UnlockFlowAction.Unsupported -> toast("此设备不支持低功耗蓝牙")
+            UnlockFlowAction.MissingDoor -> toast("门禁已删除，请返回列表")
+            is UnlockFlowAction.Rejected -> toast(action.message)
+        }
+    }
+
+    private fun precondition(): UnlockPrecondition = when {
+        !packageManager.hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE) -> UnlockPrecondition.UNSUPPORTED
+        !hasConnectPermission() -> UnlockPrecondition.PERMISSION_REQUIRED
+        !bluetoothEnabled() -> UnlockPrecondition.BLUETOOTH_REQUIRED
+        else -> UnlockPrecondition.READY
     }
 
     private fun hasConnectPermission(): Boolean = Build.VERSION.SDK_INT < 31 ||

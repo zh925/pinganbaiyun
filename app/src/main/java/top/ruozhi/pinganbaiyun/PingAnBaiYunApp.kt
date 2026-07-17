@@ -3,24 +3,21 @@ package top.ruozhi.pinganbaiyun
 import android.app.Application
 import android.os.Handler
 import android.os.Looper
-import top.ruozhi.pinganbaiyun.model.DoorConfig
 import top.ruozhi.pinganbaiyun.storage.DoorRepository
 import top.ruozhi.pinganbaiyun.storage.EncryptedDoorStore
 import top.ruozhi.pinganbaiyun.unlock.AndroidGattTransport
 import top.ruozhi.pinganbaiyun.unlock.CancelHandle
 import top.ruozhi.pinganbaiyun.unlock.TaskScheduler
 import top.ruozhi.pinganbaiyun.unlock.UnlockCoordinator
-import top.ruozhi.pinganbaiyun.unlock.UnlockOrigin
-import java.util.concurrent.atomic.AtomicBoolean
+import top.ruozhi.pinganbaiyun.unlock.UnlockFlowController
 
 class PingAnBaiYunApp : Application() {
     lateinit var repository: DoorRepository
         private set
     lateinit var coordinator: UnlockCoordinator
         private set
-
-    private val coldStartConsumed = AtomicBoolean(false)
-    @Volatile var pendingUnlock: PendingUnlock? = null
+    lateinit var unlockFlow: UnlockFlowController
+        private set
 
     override fun onCreate() {
         super.onCreate()
@@ -34,9 +31,12 @@ class PingAnBaiYunApp : Application() {
                 CancelHandle { handler.removeCallbacks(runnable) }
             },
         )
+        unlockFlow = UnlockFlowController(
+            start = coordinator::start,
+            latestDoor = { id ->
+                (repository.load() as? top.ruozhi.pinganbaiyun.model.LoadResult.Success)
+                    ?.snapshot?.doors?.firstOrNull { it.id == id }
+            },
+        )
     }
-
-    fun consumeColdStart(): Boolean = coldStartConsumed.compareAndSet(false, true)
-
-    data class PendingUnlock(val door: DoorConfig, val origin: UnlockOrigin)
 }
