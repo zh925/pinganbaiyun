@@ -11,6 +11,7 @@ enum class UnlockStage(val label: String, val terminal: Boolean = false) {
     PREPARING_CHANNEL("准备通信通道"),
     READING_SEED("读取设备随机数"),
     SENDING_COMMAND("发送开门指令"),
+    CONFIRMING_WRITE("确认指令写入"),
     SENT("开门指令已发送，请确认门禁状态", true),
     FAILED("开门失败", true),
     CANCELLED("已取消", true),

@@ -31,6 +31,7 @@ class UnlockCoordinatorTest {
             UnlockStage.PREPARING_CHANNEL,
             UnlockStage.READING_SEED,
             UnlockStage.SENDING_COMMAND,
+            UnlockStage.CONFIRMING_WRITE,
         ).forEach { stage ->
             val transport = FakeTransport()
             val scheduler = FakeScheduler()

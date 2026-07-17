@@ -9,6 +9,8 @@
 
 从确认 commit 新建单 Activity Android 应用，支持 API 26–35。门禁配置通过 Android Keystore AES/GCM 加密为单一原子快照，配置列表与 `defaultId` 同步提交；密文损坏时保留原数据并要求二次确认后重置。进程级 `UnlockCoordinator` 持有全局单任务锁、不可变门禁快照、阶段超时与唯一终态；Launcher 进程冷启动 token 只消费一次，生命周期恢复不创建新自动任务。
 
+Android UI 以 `docs/requirements/RUO-4/prototype/` 的移动端 390×780 画布为视觉事实来源，使用纸张底色、墨绿、珊瑚与薄荷绿 token，复刻页眉、加密提示、默认反色门禁卡、底部导航与原型式 bottom sheet。桌面工作室面板和场景选择器不进入 APP。加载、空状态、四步开门进度、中性发送结果及失败/权限/蓝牙/损坏数据均为独立可读页面，状态同时使用图形、文字和阶段标签，不只依赖颜色；界面不使用持续动画，兼容系统减弱动画偏好。
+
 BLE 采用 ADR-001 的已知 MAC 直连，不扫描。`AndroidGattTransport` 固定 Service UUID，按 UUID 排序后确定性选择 read/write/notify/indicate 特征，串行写 CCCD、读取 seed、构造并写入 20 字节帧；每个 API 发起结果和回调 status 均检查，失败、取消和超时均关闭 GATT。协议纯函数绑定 `SafeBaiyun@c4ff50888ef9244870a30304b3a5e6d0d5a96eac`，拒绝空或超过 6 字节的未证实 seed，写回调成功只展示中性“指令已发送”。
 
 ## 子任务与依赖
@@ -24,6 +26,7 @@ BLE 采用 ADR-001 的已知 MAC 直连，不扫描。`AndroidGattTransport` 固
 - 新增 `DoorConfig(id, doorName, mac, key)` 与独立 `DoorSnapshot.defaultId`；不新增网络、账号、数据库或导入导出接口。
 - 本地存储为私有 `SharedPreferences` 中的 AES/GCM envelope，明文 JSON 只存在于进程内；Android Keystore alias 不含业务凭据。
 - `SafeBaiyunProtocol.buildUnlockFrame` 是纯函数协议边界；GATT 仅暴露阶段、发送完成或脱敏失败信息。
+- `UiStateMapper` 将 transport 状态映射到连接、读取 seed、发送、确认写入四步与独立结果页面；`CONFIRMING_WRITE` 只表示已发起写入并等待 GATT 回调。
 - Manifest 只声明 API 26–30 legacy Bluetooth 权限和 API 31+ `BLUETOOTH_CONNECT`，未声明扫描、定位或网络权限。
 
 ## 兼容性与迁移
@@ -35,7 +38,7 @@ BLE 采用 ADR-001 的已知 MAC 直连，不扫描。`AndroidGattTransport` 固
 
 ## 测试策略
 
-- JVM：字段规范化、16 位 key 拒绝、默认关系原子变更、重复 MAC、加密认证失败/悬空引用、协议黄金向量、假 GATT 顺序与同步/异步故障、单任务锁、逐阶段超时/释放、冷启动 token、权限/蓝牙续接、重建不重复和最新快照重试。
+- JVM：字段规范化、16 位 key 拒绝、默认关系原子变更、重复 MAC、加密认证失败/悬空引用、协议黄金向量、假 GATT 顺序与同步/异步故障、单任务锁、逐阶段超时/释放、冷启动 token、权限/蓝牙续接、重建不重复、最新快照重试，以及原型 UI 场景/四阶段映射。
 - 本地构建：`./gradlew testDebugUnitTest assembleDebug`。
 - 后续假 GATT/仪器与真机：权限拒绝/撤回、蓝牙关闭、生命周期、存储故障、API 26–35、授权门禁及飞行模式。
 

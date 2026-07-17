@@ -92,6 +92,7 @@ class GattSession(
         val channel = writeChannel ?: return fail("写入特征不可用")
         listener?.onStage(UnlockStage.SENDING_COMMAND)
         if (!client.write(channel, frame)) fail("无法发起开门指令写入")
+        else listener?.onStage(UnlockStage.CONFIRMING_WRITE)
     }
 
     override fun onCommandWritten(success: Boolean) {

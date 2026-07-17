@@ -8,7 +8,7 @@
 - 已合并需求 commit：`2bf816cd93fe408de7d66ecc94d36463efa044cf`
 - 协议参考：`dogproton/SafeBaiyun@c4ff50888ef9244870a30304b3a5e6d0d5a96eac`
 - 测试对象：RUO-10 Draft PR #5 的精确 head SHA / 对应 debug 与 release 候选构建；每轮验证在 Issue 记录具体 SHA
-- 当前执行状态：独立验证在旧 head `f7643f30e64eb86ddb22ebcfde018221a0a1939d` 判定 FAIL（关键本地集成/故障注入不足）；实现者已在后续修复工作树补强并本地复跑，最终精确 head 与复验结论以 Issue 最新记录为准
+- 当前执行状态：独立验证已在旧 head `9b262344f8454fdad7808714c118f37c04f46430` 对既有开发范围判定 PASS；RUO-12 原型 UI 重做后的新 head 仍须独立视觉复验，最终精确 head 与复验结论以 Issue 最新记录为准
 - CI/CD 状态：未接入；GitHub 无 checks 不代表任何命令通过
 
 ## 验收覆盖矩阵
@@ -22,15 +22,15 @@
 | AC-13～AC-15 | 状态机单元 + 假 GATT + 授权真机 | 已知 MAC 直连与 GATT 通道准备 | fake 校验完整调用顺序；真机复核无 scan、目标 Service 与 descriptor 串行回调 | 单 taskId；connect→discover→descriptor 队列→read→write；失败释放 | 纯 Kotlin 假 GATT 通过；Android API 映射仅编译，真机未执行 | `GattSessionTest`、`AndroidGattClient` |
 | AC-16、NFR-10 | JVM 黄金测试 | SafeBaiyun 20 字节 DES 指令帧 | 使用固定非真实 MAC/key/seed 向量，逐字节对照固定参考 commit | 帧头尾、长度、MAC 段、DES 密文和校验完全一致 | 实现者 JVM 通过；待独立复核 | `SafeBaiyunProtocolTest` |
 | AC-17～AC-19 | 参数化单元 + 假 GATT | seed/DES/GATT 发起与回调失败 | 注入空/>6 字节 seed、connect/discover/notify/descriptor/read/write 未发起与非成功 status | 唯一失败终态；不发送空/部分帧；关闭一次且忽略迟到回调 | JVM 假 GATT 通过；Android 真机未执行 | `GattSessionTest`、`SafeBaiyunProtocolTest` |
-| AC-18 | 单元 + UI 文案 | 传输成功语义 | 注入 write callback `GATT_SUCCESS` | 仅显示“开门指令已发送，请确认门禁状态”，不宣称门已打开 | 实现者 JVM 通过；UI 未执行 | `UnlockCoordinatorTest` |
-| AC-20～AC-25、NFR-01～NFR-03、NFR-11 | 状态机模型 + 虚拟时钟 + 并发仪器 | 单任务、取消/迟到回调、逐阶段超时、显式重试、资源释放 | 逐一进入连接/发现/准备通道/读 seed/写入后触发新 timeout；各 GATT 阶段取消 | 活跃任务 ≤1；timeout 每阶段重置；终态关闭一次且迟到成功无效 | JVM 协调器+假 GATT 通过；仪器/50 轮未执行 | `UnlockCoordinatorTest`、`GattSessionTest` |
+| AC-18 | 单元 + UI 文案 | 传输成功语义 | 注入 write callback `GATT_SUCCESS`；核对结果场景映射 | 仅显示“开门指令已发送，请确认门禁状态”，不宣称门已打开 | JVM 协调器与 UI 映射通过；运行 UI 未执行 | `UnlockCoordinatorTest`、`UiStateMapperTest` |
+| AC-20～AC-25、NFR-01～NFR-03、NFR-11 | 状态机模型 + 虚拟时钟 + 并发仪器 | 单任务、取消/迟到回调、逐阶段超时、显式重试、资源释放 | 逐一进入连接/发现/准备通道/读 seed/发送/确认写入后触发新 timeout；各 GATT 阶段取消 | 活跃任务 ≤1；timeout 每阶段重置；终态关闭一次且迟到成功无效 | JVM 协调器+假 GATT 通过；仪器/50 轮未执行 | `UnlockCoordinatorTest`、`GattSessionTest`、`UiStateMapperTest` |
 | AC-24、AC-30 | 单元 + 仪器 | 任务快照和重试读取最新配置 | 权限挂起时保留快照；终态后按 id 读取最新配置重试 | 当前任务不变；重试读取最新配置；删除后不能重试 | JVM flow controller 通过；Activity 仪器未执行 | `UnlockFlowControllerTest` |
 | AC-26～AC-30 | 生命周期协调单元 + 仪器 | 冷启动一次、挂起续接、热启动/重建/回前台不重触发 | 模拟 Activity 重建调用 process-scoped controller；设备上再执行 `am force-stop`/旋转 | 冷启动 token 一次；权限/蓝牙返回续接同一 pending；重建不新建自动任务 | JVM 协调层通过；Android framework 仪器未执行 | `UnlockFlowControllerTest` |
 | AC-31～AC-33 | 前置条件单元 + API 兼容真机/设备池 | BLE 不支持、蓝牙关闭、权限拒绝/返回、legacy 权限 | JVM 驱动 permission→bluetooth→ready；设备执行权限矩阵 | 未满足条件不发 GATT；返回只继续 pending；无循环弹窗 | JVM 协调层通过；实际系统权限/API 26–35 阻塞 | `UnlockFlowControllerTest`；缺设备池 |
 | AC-34、AC-35、NFR-05 | 授权真机 + 流量观察 | 飞行模式手动与默认自动路径 | 预存脱敏测试门禁；飞行模式下单独开启蓝牙；执行手动与冷启动路径 | 网络请求为 0；手动链路完成；自动链路最多一次并到可验证终态 | 阻塞 | 缺授权门禁、测试凭据和设备 |
 | AC-36、NFR-04 | 自动扫描 + 人工安全检查 | UI/日志/异常/剪贴板/分享敏感信息泄漏 | 对 debug/release 的成功与失败路径采集日志和界面；扫描固定测试 secret、seed、完整帧 | 完整 key、seed、可重放帧泄漏数为 0；无复制/分享入口 | 实现者静态源码扫描通过；运行时未执行 | 本地 `rg`；待设备采证 |
 | AC-37 | 静态检查 + 真机安全测试 | 加密落盘、备份禁用、卸载后不可恢复 | 审查 manifest/backup rules；检查私有存储；执行目标 API 可用的备份验证与卸载重装 | 私有存储无明文 key；备份禁用；卸载后 APP 不可恢复配置 | Manifest/源码审查通过；真机未执行 | `AndroidManifest.xml`、`data_extraction_rules.xml` |
-| AC-38 | 本地 Gradle | 单元测试与 debug 构建 | `./gradlew testDebugUnitTest assembleDebug` | 两项成功，协议、存储、调度、假 GATT 与错误测试通过 | 修复工作树本地通过（23 tests）；新 head 独立验证未执行 | 本地 Gradle XML；精确 head 见 Issue |
+| AC-38 | 本地 Gradle | 单元测试与 debug/release 构建、lint | `./gradlew --rerun-tasks testDebugUnitTest assembleDebug lintDebug assembleRelease lintRelease` | 五项成功，协议、存储、调度、假 GATT、UI 映射与错误测试通过 | RUO-12 工作树本地通过（26 tests、95 tasks）；新 head 独立验证未执行 | 本地 Gradle XML；精确 head 见 Issue |
 | AC-39、NFR-12 | 真机兼容回归 | API 26、28、30、31/32、33、34、35 与目标门禁矩阵 | 在记录设备、Android、APP commit/build 的设备池执行核心成功/失败用例 | 每格有 PASS/FAIL 和脱敏证据；无未解释崩溃/永久挂起 | 阻塞 | 缺设备池、授权门禁与 build ID |
 | AC-40 | 流程检查 | 需求门禁与开发起点 | 核对 PR #3、用户确认 head、merged commit 与 RUO-10 stage | 开发只基于 `2bf816c...` 开始 | 通过 | RUO-10 描述与 git 历史 |
 | NFR-08 | StrictMode + 性能观察 | 主线程响应 | 开启 StrictMode；反复执行存储、加密、连接/取消路径并观察 ANR/jank | 无主线程磁盘/网络违规和可感知 ANR | 未执行 | 需设备环境 |
@@ -76,7 +76,7 @@
 ./gradlew assembleDebug
 ```
 
-实现者在修复工作树执行上述三项；最终结果、测试数和精确 head 以 Issue 回报为准。独立验证必须在推送后的新 head 重新执行并记录结果。CI/CD 未接入，GitHub 无检查不等于上述命令通过。
+实现者在 RUO-12 工作树强制执行 `testDebugUnitTest assembleDebug lintDebug assembleRelease lintRelease`；最终结果、测试数和精确 head 以 Issue 回报为准。独立验证必须在推送后的新 head 重新执行并记录结果。CI/CD 未接入，GitHub 无检查不等于上述命令通过。
 
 ## 测试数据与证据规则
 
@@ -87,13 +87,13 @@
 
 ## 未执行项及原因
 
-- 独立 Gradle/lint/build/自动化：测试工程师尚未基于集成测试计划后的新 PR head 执行。
-- Android 仪器与生命周期：当前没有已启动的模拟器/设备验证证据。
+- 独立 Gradle/lint/build/自动化：测试工程师尚未基于 RUO-12 UI 新 head 执行。
+- Android 仪器、390×780 截图与生命周期：`adb devices -l` 无设备且 `emulator -list-avds` 为空，当前没有可启动的模拟器/设备验证证据。
 - BLE/GATT 与物理效果：未提供授权测试门禁、测试 MAC/key、Secret 载体和脱敏采证方式。
 - API 26–35/厂商兼容矩阵：未提供设备池或等价服务。
 - CI/CD：仓库明确尚未接入；本计划不声称任何自动流水线已运行或通过。
 
 ## 已知不稳定测试
 
-- 当前实现者执行的 23 个 JVM 测试均为确定性测试，未发现不稳定项；独立验证尚未确认。
+- 当前实现者执行的 26 个 JVM 测试均为确定性测试，未发现不稳定项；RUO-12 新 head 的独立验证尚未确认。
 - 后续真实 BLE 用例不得用无界重试“消除”波动；需区分设备不可达、系统 GATT 波动、协议失败与产品缺陷，并保存每次原始结果。

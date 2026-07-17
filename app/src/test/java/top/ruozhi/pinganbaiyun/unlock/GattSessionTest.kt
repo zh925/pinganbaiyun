@@ -26,6 +26,7 @@ class GattSessionTest {
             UnlockStage.PREPARING_CHANNEL,
             UnlockStage.READING_SEED,
             UnlockStage.SENDING_COMMAND,
+            UnlockStage.CONFIRMING_WRITE,
         ), fixture.listener.stages)
         assertEquals(1, fixture.listener.sent)
         assertTrue(fixture.listener.failures.isEmpty())
