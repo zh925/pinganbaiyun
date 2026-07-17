@@ -81,8 +81,8 @@
 | 日志泄密 | `LockBiz.kt:19-20,40-42` 输出 header、明文块和密文 | 日志可帮助还原/重放协议 | release 禁止；debug 也必须脱敏 key、seed、完整帧和 MAC |
 | 无 key 校验 | `EditDialog.kt:47-55` 原样保存输入 | 奇数/非 hex 可崩溃，短 key 被补零，长 key 静默截断 | 保存前严格校验，推荐恰好 16 hex；拒绝静默截断/补零 |
 
-## 与当前仓库协议的采用规则
+## 采用边界
 
-- 可直接复用：BLE/GATT、目标 Service `14839ac4-...`、按属性选 read/write/notify/indicate、DES/ECB/NoPadding、MAC 尾四字节帧头、20 字节帧构造思路。
-- 需要修正后复用：异步 descriptor/characteristic 操作、逐阶段超时、取消和迟到回调隔离、日志脱敏、错误分类。
+- 可作为新实现的协议输入：BLE/GATT、目标 Service `14839ac4-...`、按属性选 read/write/notify/indicate、DES/ECB/NoPadding、MAC 尾四字节帧头、20 字节帧构造思路。
+- 必须在新实现中补强：异步 descriptor/characteristic 操作、逐阶段超时、取消和迟到回调隔离、日志脱敏、错误分类。
 - 不得默认采用：广播名、扫描匹配、`0734594a-...` Service、通信密钥/时间同步命令、`00/02` 回执语义。它们需要用户选择另一协议基线或提供设备级证据。

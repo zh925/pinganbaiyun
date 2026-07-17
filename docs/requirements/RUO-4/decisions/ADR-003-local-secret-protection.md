@@ -3,11 +3,11 @@
 - 状态：提议
 - 日期：2026-07-17
 - 决策人：待用户确认
-- 关联 Issue/PR：RUO-4、RUO-5；需求 PR 待创建
+- 关联 Issue/PR：RUO-4、RUO-5、RUO-7；最终需求 PR 待创建
 
 ## 背景
 
-门禁 key 是可产生物理访问后果的敏感凭据。`SafeBaiyun` 使用普通 SharedPreferences 且允许系统备份；当前 `pinganbaiyun` 已使用 Keystore 支持的 `EncryptedSharedPreferences` 并设置 `allowBackup=false`。单 DES 和静态设备 key 仍是设备协议遗留风险，本地加密不能消除链路或设备端风险。
+门禁 key 是可产生物理访问后果的敏感凭据。`SafeBaiyun` 使用普通 SharedPreferences 且允许系统备份；RUO-4 的全新实现不得照搬。单 DES 和静态设备 key 仍是设备协议遗留风险，本地加密不能消除链路或设备端风险。
 
 ## 选项
 
@@ -22,7 +22,7 @@
 ## 理由
 
 - 满足离线与自动开门的持久化需要，同时减少明文和备份暴露。
-- 与当前仓库较安全的实现方向一致，不回退到 SafeBaiyun 的明文存储。
+- 不回退到 SafeBaiyun 的明文存储，并为全新实现建立最低保护基线。
 - 禁止导出可避免把物理访问凭据带入剪贴板、文件和分享渠道。
 
 ## 影响与后续

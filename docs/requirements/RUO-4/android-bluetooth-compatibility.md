@@ -2,9 +2,9 @@
 
 ## 基线
 
-- RUO-4 沿用当前工程支持范围：Android 8.0（API 26）至 target/compileSdk 35。
+- RUO-4 为全新 Android 工程提议支持范围：Android 8.0（API 26）至 target/compileSdk 35。
 - 门禁通信为 BLE GATT client。
-- 下表区分两种互斥连接方案：A 为 `SafeBaiyun` 已知 MAC 直连；B 为当前工程的 BLE 扫描匹配。最终只实现 ADR-001 确认的方案。
+- 下表区分两种互斥连接方案：A 为 `SafeBaiyun` 已知 MAC 直连；B 为仅在补充设备证据后才可选择的 BLE 扫描匹配。最终只实现 ADR-001 随需求基线确认的方案。
 - Android 官方依据：[Bluetooth permissions](https://developer.android.com/develop/connectivity/bluetooth/bt-permissions)、[BluetoothGatt API](https://developer.android.com/reference/android/bluetooth/BluetoothGatt)、[Find Bluetooth devices](https://developer.android.com/develop/connectivity/bluetooth/find-bluetooth-devices)。查阅日期：2026-07-17。
 
 ## 权限矩阵
@@ -36,7 +36,6 @@
 | 权限弹窗/蓝牙开启页返回 | 否（继续原被挂起任务） | 原 token 继续或终止，不重新触发 |
 | 从后台回前台 | 本稿推荐否 | 只恢复状态；若用户另行选择自动触发，需定义最小后台时长和冷却 |
 | 热启动点击 Launcher | 本稿推荐否 | 不产生物理副作用；用户可手动开门 |
-| NFC intent | RUO-4 不新增 NFC 自动流程 | 若现有 NFC 任务存在，全局单任务锁阻止默认任务并发 |
 | 进程被系统杀死 | 运行中的连接自然终止 | 下次真正冷启动可新建一次；不持久化“进行中”并盲目续传 |
 
 ## 设备与厂商兼容性

@@ -7,6 +7,9 @@ let doors = structuredClone(demoDoors);
 let scene = new URLSearchParams(location.search).get('scene') || 'list';
 let activeStage = new URLSearchParams(location.search).get('stage') || 'read';
 let activeTask = false;
+let activeTaskKind = null;
+let activeDoorId = null;
+let coldStartConsumed = false;
 
 const screen = document.querySelector('#screen');
 const modal = document.querySelector('#modal');
@@ -50,10 +53,11 @@ function emptyView() {
 
 function progressView() {
   const order = ['connect','read','send','response'];
-  const labels = { connect: ['连接设备','正在连接'], read: ['读取种子','正在读取'], send: ['发送指令','等待发送'], response: ['确认写入','等待响应'] };
+  const labels = { connect: ['连接设备','正在连接'], read: ['读取种子','正在读取'], send: ['发送指令','等待发送'], response: ['确认写入','等待写入回调'] };
   const index = Math.max(0, order.indexOf(activeStage));
+  const target = doors.find(door => door.id === activeDoorId) || doors.find(door => door.isDefault) || doors[0];
   return `<section class="task-panel">
-    <div class="task-target"><div class="pulse-ring">▥</div><div><p class="eyebrow">${activeTask ? '手动开门' : '冷启动 · 自动一次'}</p><h3>北门 · 云庭</h3><p>A4:C1:38:••:7B:10</p></div></div>
+    <div class="task-target"><div class="pulse-ring">▥</div><div><p class="eyebrow">${activeTaskKind === 'manual' ? '手动开门' : '冷启动 · 自动一次'}</p><h3>${escapeHtml(target?.name || '未配置门禁')}</h3><p>${escapeHtml(target?.mac || '—')}</p></div></div>
     <div class="progress-list">${order.map((key,i) => `<div class="progress-step ${i < index ? 'done' : i === index ? 'active' : ''}"><span class="step-mark">${i < index ? '✓' : i+1}</span><b>${labels[key][0]}</b><small>${i < index ? '完成' : i === index ? labels[key][1] : '等待'}</small></div>`).join('')}</div>
     <p class="task-note">正在执行的门禁任务全局唯一，并使用启动时的配置快照。回到前台或连续点击不会创建第二个任务。</p>
     <div class="task-actions"><button class="secondary-button" data-action="background">模拟前后台</button><button class="danger-button" data-action="cancel">取消开门</button></div>
@@ -63,9 +67,9 @@ function progressView() {
 function resultView(kind) {
   const content = {
     success: ['✓','开门指令已发送','传输已完成，请确认门禁的实际状态。','返回门禁','再次发送'],
-    error: ['!','未找到可用门禁设备','请靠近门禁，并检查保存的 MAC 地址后重试。','检查配置','重试'],
+    error: ['!','无法连接门禁设备','请靠近门禁，并检查保存的 MAC 地址后重试。','检查配置','重试'],
     timeout: ['⌛','连接超时','设备在限定时间内没有响应，任务已停止且不会自动重试。','返回列表','重试'],
-    protocol: ['!','门禁协议响应异常','读取到的种子或通道不符合已确认协议，未发送空帧或部分指令。','检查配置','重试'],
+    protocol: ['!','门禁协议数据异常','读取到的种子或通道不符合需求基线，未发送空帧或部分指令。','检查配置','重试'],
     permission: ['◇','需要“附近设备”权限','Android 12 及以上需要此权限连接已保存的门禁。拒绝后不会循环询问。','暂不授权','去授权'],
     bluetooth: ['ᛒ','蓝牙已关闭','开启蓝牙后将继续当前任务，不会因返回页面再次自动开门。','取消任务','开启蓝牙'],
     corrupt: ['⚠','门禁数据无法读取','原始加密数据会被保留。确认重置前，不会静默覆盖或删除。','稍后处理','安全重置']
@@ -114,9 +118,9 @@ function confirmDelete(door) {
 document.addEventListener('click', (event) => {
   const target = event.target.closest('button');
   if (!target) return;
-  if (target.dataset.scene) { scene = target.dataset.scene; activeStage = target.dataset.stage || activeStage; activeTask = false; render(); }
+  if (target.dataset.scene) { scene = target.dataset.scene; activeStage = target.dataset.stage || activeStage; activeTask = scene === 'progress'; activeTaskKind = scene === 'progress' ? 'auto' : null; activeDoorId = doors.find(door => door.isDefault)?.id || doors[0]?.id || null; render(); }
   if (target.id === 'add-door' || target.dataset.action === 'add') formModal();
-  if (target.dataset.unlock) { if (activeTask) return showToast('北门 · 云庭正在开门，请稍候'); activeTask = true; activeStage = 'connect'; scene = 'progress'; render(); }
+  if (target.dataset.unlock) { if (activeTask) { const running = doors.find(door => door.id === activeDoorId); return showToast(`“${running?.name || '门禁'}”正在执行，请稍候`); } activeTask = true; activeTaskKind = 'manual'; activeDoorId = target.dataset.unlock; activeStage = 'connect'; scene = 'progress'; render(); }
   if (target.dataset.menu) menuModal(doors.find(d => d.id === target.dataset.menu));
   if (target.dataset.close !== undefined) closeModal();
   if (target.dataset.menuAction === 'edit') formModal(doors.find(d => d.id === target.dataset.id));
@@ -129,11 +133,19 @@ document.addEventListener('click', (event) => {
   if (target.dataset.confirmDelete) { doors = doors.filter(d => d.id !== target.dataset.confirmDelete); closeModal(); scene = doors.length ? 'list' : 'empty'; render(); showToast('门禁已从本机删除'); }
   if (target.dataset.action === 'cancel') { activeTask = false; scene = 'error'; render(); screen.querySelector('h3').textContent = '已取消开门'; screen.querySelector('.system-state > p:nth-of-type(2)').textContent = '任务资源已清理，迟到的设备回调不会改变此结果。'; }
   if (target.dataset.action === 'background') showToast('已恢复同一任务，没有重复触发');
-  if (target.dataset.action === 'retry' || target.dataset.action === 'grant' || target.dataset.action === 'enable') { activeTask = true; activeStage = 'connect'; scene = 'progress'; render(); }
-  if (target.dataset.action === 'list') { activeTask = false; scene = 'list'; render(); }
+  if (target.dataset.action === 'retry') { activeTask = true; activeTaskKind = 'manual'; activeDoorId = activeDoorId || doors.find(door => door.isDefault)?.id || doors[0]?.id || null; activeStage = 'connect'; scene = 'progress'; render(); }
+  if (target.dataset.action === 'grant' || target.dataset.action === 'enable') { activeTask = true; activeTaskKind = activeTaskKind || 'auto'; activeDoorId = activeDoorId || doors.find(door => door.isDefault)?.id || doors[0]?.id || null; activeStage = 'connect'; scene = 'progress'; render(); }
+  if (target.dataset.action === 'list') { activeTask = false; activeTaskKind = null; activeDoorId = null; scene = 'list'; render(); }
   if (target.dataset.action === 'reset') showToast('原型不会直接删除数据：实现需再次确认');
   if (target.id === 'help-button') openModal('<h3 id="modal-title">原型说明</h3><p class="helper">“成功”只代表 GATT 指令写入完成，不代表物理门已经打开。自动开门仅在进程级 Launcher 冷启动时尝试一次；回前台、旋转和设置页返回均不重复触发。</p><button class="primary-button" data-close>我知道了</button>');
-  if (target.id === 'cold-start') { const defaultDoor = doors.find(d => d.isDefault); activeTask = false; scene = defaultDoor ? 'progress' : 'list'; activeStage = 'connect'; render(); if (!defaultDoor) showToast('没有默认门禁，本次冷启动不自动开门'); }
+  if (target.id === 'cold-start') {
+    if (activeTask) return showToast('已有开门任务正在执行，不会重复触发');
+    if (coldStartConsumed) return showToast('本次冷启动已检查过默认门禁，不会重复触发');
+    coldStartConsumed = true;
+    const defaultDoor = doors.find(d => d.isDefault);
+    if (!defaultDoor) { scene = 'list'; render(); return showToast('没有默认门禁，本次冷启动不自动开门'); }
+    activeTask = true; activeTaskKind = 'auto'; activeDoorId = defaultDoor.id; scene = 'progress'; activeStage = 'connect'; render();
+  }
 });
 
 document.addEventListener('submit', (event) => {
