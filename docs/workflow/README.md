@@ -32,6 +32,7 @@
 - [生命周期与 Issue 结构](lifecycle.md)
 - [角色与职责](roles.md)
 - [门禁与状态](gates.md)
+- [批准执行与阶段推进](approval-execution.md)
 - [GitHub 与代码评审](github-review.md)
 - [QA 与发布](qa-release.md)
 - [新人接入](onboarding.md)

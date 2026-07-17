@@ -8,6 +8,7 @@
 | 开发组 | `implementation-plan.md`、`test-plan.md` |
 | 数据库与基础设施 | `database-infra-plan.md` |
 | 代码评审组 | `code-review-report.md`、`review-disposition.md` |
+| 人工批准与门禁执行 | `approval-record.md` |
 | QA/发布组 | `qa-plan.md`、`bug-report.md`、`qa-report.md` |
 | 发布与验证 | `release-plan.md`、`post-release-verification.md` |
 
